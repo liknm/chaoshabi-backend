@@ -1,0 +1,61 @@
+###
+GET http://localhost:8964/_api/user/8/course/all
+###
+
+###
+DELETE http://localhost:8964/_api/user/8/course/:id
+###
+
+###
+PUT /_api/user/8/course
+Host: localhost:8964
+Content-Type: application/json
+
+[
+    {
+        "id": "string",
+        "name": "string",
+        "description": "string",
+        "start_date": "string",
+        "end_date": "string"
+    }
+]
+###
+
+###
+POST http://localhost:8964/_api/user/8/course
+
+Content-Type: application/json
+
+{
+    "id": "string"
+}
+###
+PUT /_api/user/1/course
+Host: localhost:8964
+Content-Type: application/json
+
+[
+  {
+    "id": 1,
+    "name": "课程 A",
+    "description": "这是一门很好的课程",
+    "createdBy": 1
+  },
+  {
+    "id": 2,
+    "name": "课程 B",
+    "description": "这也是一门很好的课程",
+    "createdBy": 1
+  }
+]
+
+###
+
+POST /_api/user/1/course
+Host: localhost:8964
+Content-Type: application/json
+
+{
+  "id": "8964"
+}
