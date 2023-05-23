@@ -2,6 +2,7 @@ import fastify from 'fastify';
 import autoLoad from '@fastify/autoload';
 import path from 'path';
 import {join} from "desm";
+import {mainInit} from "./database/main.mjs";
 
 const app = fastify({logger:true});
 
@@ -14,6 +15,8 @@ app.register(autoLoad, {
 // 启动 Fastify 服务器
 const start = async () => {
     try {
+
+        mainInit()
         await app.listen(8964);
         console.log('Server listening on port 3000');
     } catch (err) {

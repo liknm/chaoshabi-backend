@@ -10,8 +10,8 @@ import {
     ClassAVLTree,
     StuAVLTree
 } from './UserAVLTree.mjs';
-
-
+let maxCourseId=0;
+let UserTree=null;
 //声明一个对象指向同一个实例
 function stuLoginIn(userName, passWord, UserTree) {
     let student = UserTree.searchByID(userName);
@@ -52,8 +52,9 @@ function init(courseByname, courseBytime, examByname) {
 }
 
 //创建新课程
-function addCourse(id, name, weekday, startTime, duration, periodic, location, courseByname, courseBytime) {
-    let course = new Course(id, name, weekday, startTime, duration, periodic, location);
+export function addCourse(name, weekday, startTime, duration, periodic, location, courseByname, courseBytime) {
+
+    let course = new Course(maxCourseId++, name, weekday, startTime, duration, periodic, location);
     courseByname.insert(course);
     courseBytime.insert(course);
 }
@@ -76,7 +77,7 @@ function modifyCourseDuration(weekday, name, id, duration, courseByname, courseB
 
 function modifyCourseWeekday(weekday, newWeekday, name, id, courseByname, courseBytime) {
     courseByname.modifyWeekday(name, id, newWeekday);
-    courseBytime.modifyDuration(weekday, id, newWeekday);
+    courseBytime.modifyWeekday(weekday, id, newWeekday);
 }
 
 function modifyExamStartTime(name, id, Start, examByname) {
@@ -84,15 +85,20 @@ function modifyExamStartTime(name, id, Start, examByname) {
 }
 
 function modifyExamEndTime(name, id, End, examByname) {
-    examByname.modifyStartTime(name, id, End);
+    examByname.modifyEndTime(name, id, End);
 }
 
 function modifyExamLocation(name, id, location, examByname) {
-    examByname.modifyStartTime(name, id, location);
+    examByname.modifyLocation(name, id, location);
 }
 
+export function modifyExamEverything(startTime,endTime,location, id, name,examByName) {
+    examByName.modifyStartTime(name,id,startTime)
+    examByName.modifyEndTime(name,id,endTime);
+    examByName.modifyLocation(name,id,location);
+}
 //学生注册
-function addStudent(username, password, Name, classnumber, stuTree, classTree) {
+export function addStudent(username, password, Name, classnumber, stuTree, classTree) {
     classTree.addClass(classnumber, username);
     let student = new userNode(username, password, Name, classnumber, classTree.getClassEvent(classnumber));
     stuTree.insertNode(student);
@@ -146,35 +152,25 @@ function addStaff(username, password, Name, staffs) {
     let staff = new staffNode(username, password, Name);
     staffs.addStaff(staff);
 }
-
-function main() {
-    let courseByname = new CourseTableByname();
-    let courseBytime = new CourseTableBytime();
-    let examByname = new ExamTableByname();
+let stuTree=null;
+let courseByname=null;
+let examByname=null
+let courseBytime=null;
+export function mainInit() {
+    courseByname = new CourseTableByname();
+    courseBytime = new CourseTableBytime();
+    examByname = new ExamTableByname();
     let classTree = new ClassAVLTree();
     let stuTree = new StuAVLTree();
     let staffs = new staffList();
     init(courseByname, courseBytime, examByname);
 }
 
-export default {
-    stuLoginIn,
-    monitorLogin,
-    staffLogin,
-    init,
-    addCourse,
-    modifyCourseDuration,
-    modifyCourseStartTime,
-    modifyCourseLocation,
-    modifyCourseWeekday,
-    modifyExamStartTime,
-    modifyExamEndTime,
-    modifyExamLocation,
-    addStudent,
-    stuAddCourse,
-    stuAddEvent,
-    findDay2nd,
-    addClassEvent,
-    stuAddEventDirect,
-    addStaff,
+export function insertUserCourse (userId,courseId,courseName) {
+    const student=stuTree.searchByID(userName);
+    const course=courseByname.searchById(courseId,courseName)
+    student.addCourse(course,courseBytime)
+
 }
+
+export function

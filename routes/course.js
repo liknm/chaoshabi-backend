@@ -1,3 +1,4 @@
+import addCourse, {modifyExamEverything} from '../database/main.mjs'
 export const autoPrefix = '/_api'
 export default async function course(fastify, opts) {
     const {} = fastify
@@ -130,21 +131,15 @@ export default async function course(fastify, opts) {
 
     async function addCourse(req, reply) {
         const course = req.body
-        const id = (Math.random() * 10000).toFixed(0)
-        courses.push({ id, ...course })
+        addCourse(...course);
         reply.code(201).send({ message: 'Course added successfully', id })
     }
 
     async function updateCourse(req, reply) {
-        const { id } = req.params
-        const course = req.body
-        const index = courses.findIndex(c => c.id === id)
-        if (index === -1) {
-            reply.code(404).send({ message: 'Course not found' })
-            return
-        }
-        courses[index] = { id, ...course }
-        reply.send({ message: 'Course updated successfully' })
+        const courses = req.body;
+        const id=req.params.id;
+        modifyExamEverything(...courses);
+        reply.send({ message: 'Courses revised successfully' });
     }
 
     async function deleteCourse(req, reply) {

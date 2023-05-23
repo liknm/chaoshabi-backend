@@ -1,3 +1,5 @@
+import {pinyin} from "pinyin-pro";
+
 class Node {
     constructor() {
         this.data = 0;
@@ -33,7 +35,8 @@ class hashTableByname {
     }
 
     getKey(node) {
-        return node.name[0].charCodeAt() - 97;
+        const pinyin=pinyin(node.name)
+        return pinyin[0].charCodeAt() - 97;
     }
 
     isExist(key, mainKey) {
@@ -116,7 +119,8 @@ class ExamTableByname extends hashTableByname {
     }
 
     searchByname(name, id) {
-        return this.isExist(name[0].charCodeAt() - 97, id);
+        const pinyin=pinyin(name)
+        return this.isExist(pinyin[0].charCodeAt() - 97, id);
     }
 
     //管理员的功能
@@ -140,7 +144,8 @@ class CourseTableByname extends hashTableByname {
     }
 
     searchByname(name, id) {
-        return this.isExist(name[0].charCodeAt() - 97, id);
+        const pinyin=pinyin(name)
+        return this.isExist(pinyin[0].charCodeAt() - 97, id);
     }
 
     //管理员功能
@@ -200,7 +205,7 @@ class CourseTableBytime extends hashTableBytime {
 //待完成：加个week属性
 class Course {
     // 构造方法
-    constructor(id, name, weekday, startTime, duration, periodic, location) {
+    constructor(id, name, weekday, startTime, duration, periodic, location,startDate) {
         this.id = id;
         this.name = name;
         this.weekday = weekday;
@@ -208,6 +213,7 @@ class Course {
         this.duration = duration;
         this.periodic = periodic;
         this.location = location;
+        this.startDate= startDate;
         this.next = null;
     }
 }

@@ -1,4 +1,5 @@
-export { Event, userNode, ClassNode, staffNode, staffList, monitorNode, monitorList, ClassAVLTree, StuAVLTree }
+export {Event, userNode, ClassNode, staffNode, staffList, monitorNode, monitorList, ClassAVLTree, StuAVLTree}
+
 //import { CourseTableByname, CourseTableBytime, ExamTableByname } from './hash.mjs';
 class Node {
     constructor() {
@@ -41,12 +42,13 @@ class Course {
         this.next = null;
     }
 }
+
 //上边好像都可以隐去
 
-
-
+let latestEventId=0;
 class Event {
     constructor(name, startTime, duration, reType, online, location, group, platform, website) {
+        this.id=latestEventId++;
         this.name = name;
         this.start = new Date(startTime);
         this.duration = duration;
@@ -76,12 +78,14 @@ class userNode {
         this.right = null;
     }
 
+    //updateCourseList
+
     //判断添加的课程是否与课程冲突,还要找到对应表里边的
     isRepeat(node, courseBytime) {
         let tempNode;
         let current = this.courseList.head;
         while (current) {
-            if ((tempNode = courseBytime.isExist(node.weekday - 1, current.data))!==null) {
+            if ((tempNode = courseBytime.isExist(node.weekday - 1, current.data)) !== null) {
                 if ((tempNode.startTime <= node.startTime && tempNode.startTime + tempNode.duration >= node.startTime) || (node.startTime <= tempNode.startTime && node.startTime + node.duration >= tempNode.startTime)) {
                     return true;
                 }
@@ -143,7 +147,7 @@ class userNode {
         while (current) {
             if (current.start.getDate() === node.start.getDate()) {
                 if ((current.start.getHours() <= node.start.getHours() && current.start.getHours() + current.duration >= node.start.getHours()) || (node.start.getHours() <= current.start.getHours() && node.start.getHours() + node.duration >= current.start.getHours
-                    ())) {
+                ())) {
                     return true;
                 }
             }
@@ -181,7 +185,7 @@ class userNode {
         while (current) {
             if (current.start.getDate() === date) {
                 if ((current.start.getHours() <= startTime && current.start.getHours() + current.duration >= startTime) || (startTime <= current.start.getHours() && startTime + duration >= current.start.getHours
-                    ())) {
+                ())) {
                     return true;
                 }
             }
@@ -196,7 +200,7 @@ class userNode {
         while (current) {
             if (current.start.getDate() === date) {
                 if ((current.start.getHours() <= startTime && current.start.getHours() + current.duration >= startTime) || (startTime <= current.start.getHours() && startTime + duration >= current.start.getHours
-                    ())) {
+                ())) {
                     return true;
                 }
             }
@@ -341,7 +345,7 @@ class ClassNode {
             //存疑，事务类的数据是否有更好的时间匹配方式
             if (current.start.getDate() === node.start.getDate()) {
                 if ((current.start.getHours() <= node.start.getHours() && current.start.getHours() + current.duration >= node.start.getHours()) || (node.start.getHours() <= current.start.getHours() && node.start.getHours() + node.duration >= current.start.getHours
-                    ())) {
+                ())) {
                     return true;
                 }
             }
@@ -404,7 +408,7 @@ class ClassNode {
         while (current) {
             if (current.start.getDate() === date) {
                 if ((current.start.getHours() <= startTime && current.start.getHours() + current.duration >= startTime) || (startTime <= current.start.getHours() && startTime + duration >= current.start.getHours
-                    ())) {
+                ())) {
                     return true;
                 }
             }
@@ -506,6 +510,7 @@ class monitorList extends list {
         return null;
     }
 }
+
 /*测试staff链表
 let StaffList = new staffList();
 let staff = new staffNode(22, 12, "赖裕洲");
@@ -560,12 +565,12 @@ courseArr = user1.findDay_2nd(courseBytime, 1);
 /**/
 
 
-
 //插入学生结点时顺便检索是否有这个班级，没有的话就添加这个班级
 class ClassAVLTree {
     constructor() {
         this.root = null;
     }
+
     //二叉树功能
     getHeight(node) {
         if (node == null) {

@@ -1,3 +1,5 @@
+import {addStudent} from "../database/main.mjs";
+
 export const autoPrefix = '/_api'
 export default async function user(fastify, opts) {
     const {} = fastify
@@ -19,8 +21,11 @@ export default async function user(fastify, opts) {
                 type: 'object',
                 properties: {
                     // 待修改
-                    name: { type: 'string' },
-                    age: { type: 'number' },
+                    username: { type: 'string' },
+                    password: { type: 'string' },
+                    name:{type:'string'},
+                    classNumber:{type:'number'}
+
                 },
                 required: ['name', 'age', 'email']
             },
@@ -100,23 +105,18 @@ export default async function user(fastify, opts) {
 
     async function addUser(req, reply) {
         const user = req.body
-        /*const id = (Math.random() * 10000).toFixed(0)
-        users.push({ id, ...user })*/
+        //username, password, Name, classnumber,
+        addStudent(...user)
         reply.code(201).send({ message: 'User added successfully', id })
     }
-
+// useless
     async function updateUser(req, reply) {
         const { id } = req.params
         const user = req.body
-        /*const index = users.findIndex(u => u.id === id)
-        if (index === -1) {
-            reply.code(404).send({ message: 'User not found' })
-            return
-        }
-        users[index] = { id, ...user }*/
+
         reply.send({ message: 'User updated successfully' })
     }
-
+// useless
     async function deleteUser(req, reply) {
         const { id } = req.params
         /*const index = users.findIndex(u => u.id === id)

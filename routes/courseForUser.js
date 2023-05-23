@@ -1,4 +1,7 @@
+import user from "./user.js";
+
 export const autoPrefix = '/_api'
+import addCourse, {insertUserCourse, modifyExamEverything} from '../database/main.mjs'
 export default async function course(fastify, opts) {
     const {} = fastify
 
@@ -49,9 +52,12 @@ export default async function course(fastify, opts) {
                     properties: {
                         id: { type: 'string' },
                         name: { type: 'string' },
-                        description: { type: 'string' },
-                        start_date: { type: 'string' },
-                        end_date: { type: 'string' },
+                        weekday: { type: 'string' },
+                        startTime: { type: 'string' },
+                        duration: { type: 'string' },
+                        periodic:{type:'int'},
+                        location:{type:'int'},
+                        startDate:{type:'Date'}
                     },
                 },
             },
@@ -72,6 +78,7 @@ export default async function course(fastify, opts) {
                 type: 'object',
                 properties: {
                     id: { type: 'string' },
+                    name:{type:'string'}
                 },
             },
             response: {
@@ -80,7 +87,7 @@ export default async function course(fastify, opts) {
                 }
             }
         },
-        handler: addCourse
+        handler: insertCourse
     })
 
     async function getAllCourses(req, reply) {
@@ -105,15 +112,14 @@ export default async function course(fastify, opts) {
     }
 
     async function reviseCourses(req, reply) {
-        const courses = req.body;
-        //await db.reviseCourses(courses);
-        reply.send({ message: 'Courses revised successfully' });
+        //
     }
 
-    async function addCourse(req, reply) {
-        const course = req.body;
-        console.log(course)
-        //await db.addCourse(course);
+    async function insertCourse(req, reply) {
+        const courseId = req.body.id;
+        const userId=req.params.id;
+        const courseName=req.body.name;
+        insertUserCourse(userId,courseId,courseName)
         reply.send({ message: 'Course added successfully' });
     }
 }

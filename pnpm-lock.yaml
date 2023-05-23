@@ -13,6 +13,9 @@ dependencies:
   fastify:
     specifier: ^4.17.0
     version: 4.17.0
+  pinyin-pro:
+    specifier: ^3.14.0
+    version: 3.14.0
 
 packages:
 
@@ -329,6 +332,10 @@ packages:
       safe-stable-stringify: 2.4.3
       sonic-boom: 3.3.0
       thread-stream: 2.3.0
+    dev: false
+
+  /pinyin-pro@3.14.0:
+    resolution: {integrity: sha512-mbFw2Gx8IlbnxClhaACRFUWXa/lCzCttrPIdHXPzAvWOAmTKcdTFlMjbt5Quq6YY2asgD79Ml/MQpPEGN3o8iw==}
     dev: false
 
   /pkg-up@3.1.0:
