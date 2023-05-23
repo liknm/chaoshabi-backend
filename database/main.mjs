@@ -172,5 +172,3 @@ export function insertUserCourse (userId,courseId,courseName) {
     student.addCourse(course,courseBytime)
 
 }
-
-export function
