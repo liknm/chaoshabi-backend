@@ -1,4 +1,4 @@
-export {Event, userNode, ClassNode, staffNode, staffList, monitorNode, monitorList, ClassAVLTree, StuAVLTree}
+export { Event, userNode, ClassNode, staffNode, staffList, monitorNode, monitorList, ClassAVLTree, StuAVLTree }
 
 //import { CourseTableByname, CourseTableBytime, ExamTableByname } from './hash.mjs';
 class Node {
@@ -45,10 +45,10 @@ class Course {
 
 //上边好像都可以隐去
 
-let latestEventId=0;
+let latestEventId = 0;
 class Event {
     constructor(name, startTime, duration, reType, online, location, group, platform, website) {
-        this.id=latestEventId++;
+        this.id = latestEventId++;
         this.name = name;
         this.start = new Date(startTime);
         this.duration = duration;
@@ -78,7 +78,7 @@ class userNode {
         this.right = null;
     }
 
-    //updateCourseList
+    //updateCourseList（不理解）
 
     //判断添加的课程是否与课程冲突,还要找到对应表里边的
     isRepeat(node, courseBytime) {
@@ -93,6 +93,21 @@ class userNode {
             current = current.next;
         }
         return false;
+    }
+
+    getAllCourse(courseById) {
+        const courses = [];
+        let current = this.courseList.head;
+        while (current) {
+            let tempNode;
+            if ((tempNode = courseById.isExist(current.data)) !== null) {
+                let temp = Object.assign(new Course(), tempNode);
+                delete temp.next;
+                courses.push(temp);
+            }
+            current = current.next;
+        }
+        return courses;
     }
 
     //需要判断时间是否项冲突了(相同课程会因为时间相同也被检测出来),需要把添加一整个结点改为只添加一个课程ID
@@ -124,6 +139,66 @@ class userNode {
         }
     }
 
+    getEventById(ID) {
+        let current = this.eventList.head.next;
+        while (current) {
+            if (current.id === ID) {
+                return current;
+            }
+        }
+        return null;
+    }
+
+    getPreEventById(ID) {
+        let previous = this.eventList.head;
+        while (previous) {
+            if (previous.next.id === ID) {
+                return previous;
+            }
+        }
+        return null;
+    }
+
+    //新增
+    eventDelete(ID) {
+        let previous = this.getPreEventById(ID);
+        let current = this.getEventById(ID);
+        previous.next = current.next;
+        current.next = null;
+    }
+
+    getAllEvent() {
+        const events = [];
+        let event = this.eventList.head;
+        let groupEvent = this.group_eventList.head;
+        while (event) {
+            let temp = Object.assign(new Event(), event);
+            delete temp.next;
+            events.push(temp);
+            event = event.next;
+        }
+        while (groupEvent) {
+            let temp = Object.assign(new Event(), groupEvent);
+            delete temp.next;
+            events.push(temp);
+            groupEvent = groupEvent.next;
+        }
+        return events;
+    }
+
+    modifyEvent(id, name, startTime, duration, reType, online, location, group, platform, website) {
+        let event = this.getEventById(id);
+        event.name = name;
+        event.start = new Date(startTime);
+        event.duration = duration;
+        event.reType = reType;
+        event.online = online;
+        event.location = location;
+        event.group = group;
+        event.platform = platform;
+        event.website = website;
+    }
+
     //查找第二天的课程,传入是时间课程哈希表和第二天的周几？(正常的周几就行)
     //返回值是课程节点数组
     findDay_2nd(courseBytime, weekday) {
@@ -147,7 +222,7 @@ class userNode {
         while (current) {
             if (current.start.getDate() === node.start.getDate()) {
                 if ((current.start.getHours() <= node.start.getHours() && current.start.getHours() + current.duration >= node.start.getHours()) || (node.start.getHours() <= current.start.getHours() && node.start.getHours() + node.duration >= current.start.getHours
-                ())) {
+                    ())) {
                     return true;
                 }
             }
@@ -185,7 +260,7 @@ class userNode {
         while (current) {
             if (current.start.getDate() === date) {
                 if ((current.start.getHours() <= startTime && current.start.getHours() + current.duration >= startTime) || (startTime <= current.start.getHours() && startTime + duration >= current.start.getHours
-                ())) {
+                    ())) {
                     return true;
                 }
             }
@@ -200,7 +275,7 @@ class userNode {
         while (current) {
             if (current.start.getDate() === date) {
                 if ((current.start.getHours() <= startTime && current.start.getHours() + current.duration >= startTime) || (startTime <= current.start.getHours() && startTime + duration >= current.start.getHours
-                ())) {
+                    ())) {
                     return true;
                 }
             }
@@ -312,6 +387,47 @@ class ClassNode {
         this.classEventList.addNode(node);
     }
 
+    getEventById(ID) {
+        let current = this.eventList.head.next;
+        while (current) {
+            if (current.id === ID) {
+                return current;
+            }
+        }
+        return null;
+    }
+
+    getPreEventById(ID) {
+        let previous = this.eventList.head;
+        while (previous) {
+            if (previous.next.id === ID) {
+                return previous;
+            }
+        }
+        return null;
+    }
+
+    //新增
+    eventDelete(ID) {
+        let previous = this.getPreEventById(ID);
+        let current = this.getEventById(ID);
+        previous.next = current.next;
+        current.next = null;
+    }
+
+    modifyEvent(id, name, startTime, duration, reType, online, location, group, platform, website) {
+        let event = this.getEventById(id);
+        event.name = name;
+        event.start = new Date(startTime);
+        event.duration = duration;
+        event.reType = reType;
+        event.online = online;
+        event.location = location;
+        event.group = group;
+        event.platform = platform;
+        event.website = website;
+    }
+
     //判断班级事务与已有班级事务，个人事务，个人课程是否重复
     //已完成：与个人冲突应该普查完所有人而不是查冲突的那一个人，就是searchTime要改嘛改成遍历整个班和班级事务
     addClassEvent(node, userTree, courseBytime) {
@@ -345,7 +461,7 @@ class ClassNode {
             //存疑，事务类的数据是否有更好的时间匹配方式
             if (current.start.getDate() === node.start.getDate()) {
                 if ((current.start.getHours() <= node.start.getHours() && current.start.getHours() + current.duration >= node.start.getHours()) || (node.start.getHours() <= current.start.getHours() && node.start.getHours() + node.duration >= current.start.getHours
-                ())) {
+                    ())) {
                     return true;
                 }
             }
@@ -408,7 +524,7 @@ class ClassNode {
         while (current) {
             if (current.start.getDate() === date) {
                 if ((current.start.getHours() <= startTime && current.start.getHours() + current.duration >= startTime) || (startTime <= current.start.getHours() && startTime + duration >= current.start.getHours
-                ())) {
+                    ())) {
                     return true;
                 }
             }
@@ -749,8 +865,25 @@ class StuAVLTree {
         console.log('没有这个学生呀');
         return null;
     }
-}
 
+    // 前序遍历
+    preOrderTraversal() {
+        const allStudents = [];
+        this._preOrderTraversal(this.root, allStudents);
+        return allStudents;
+    }
+
+    _preOrderTraversal(node, allStudents) {
+        if (node) {
+            let temp = Object(new userNode(), node);
+            delete temp.left;
+            delete temp.right;
+            allStudents.push(temp);
+            this._preOrderTraversal(node.left, result);
+            this._preOrderTraversal(node.right, result);
+        }
+    }
+}
 
 /*测试userNode用户类的功能
 let class1 = new ClassNode('302');

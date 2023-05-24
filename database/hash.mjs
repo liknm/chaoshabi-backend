@@ -1,4 +1,4 @@
-import {pinyin} from "pinyin-pro";
+import { pinyin } from "pinyin-pro";
 
 class Node {
     constructor() {
@@ -35,7 +35,7 @@ class hashTableByname {
     }
 
     getKey(node) {
-        const pinyin=pinyin(node.name)
+        const pinyin = pinyin(node.name)
         return pinyin[0].charCodeAt() - 97;
     }
 
@@ -54,7 +54,9 @@ class hashTableByname {
         if (!this.isExist(this.getKey(node), node.id)) {
             //node.next = this.arr[this.getKey(node)].next;
             //this.arr[this.getKey(node)].next = node;
-            this.arr[this.getKey(node)].addNode(node);
+            let tempNode = new Course();
+            tempNode = Object.assign(new Course(), node);
+            this.arr[this.getKey(node)].addNode(tempNode);
         } else {
             console.log('课表中已经有这门课');
         }
@@ -105,7 +107,48 @@ class hashTableBytime {
         if (!this.isExist(this.getKey(node), node.id)) {
             //node.next = this.arr[this.getKey(node)].next;
             //this.arr[this.getKey(node)].next = node;
-            this.arr[this.getKey(node)].addNode(node);
+            let tempNode = new Course();
+            tempNode = Object.assign(new Course(), node);
+            this.arr[this.getKey(node)].addNode(tempNode);
+        } else {
+            console.log('课表中已经有这门课');
+        }
+    }
+}
+
+class CourseTableById {
+    constructor() {
+        this.arr = new Array(13);
+    }
+
+    initHashTable() {
+        for (let i = 0; i < 13; i++) {
+            this.arr[i] = new list();
+        }
+    }
+
+    getKey(node) {
+        return node.id % 13;
+    }
+
+    //key是ID模除13的值，mainkey是课程ID
+    isExist(mainKey) {
+        let key = mainKey % 13;
+        let current = this.arr[key].head;
+        while (current) {
+            if (current.id === mainKey) {
+                return current;
+            }
+            current = current.next;
+        }
+        return null;
+    }
+
+    insert(node) {
+        if (!this.isExist(this.getKey(node), node.id)) {
+            let tempNode = new Course();
+            tempNode = Object.assign(new Course(), node);
+            this.arr[this.getKey(node)].addNode(tempNode);
         } else {
             console.log('课表中已经有这门课');
         }
@@ -119,7 +162,7 @@ class ExamTableByname extends hashTableByname {
     }
 
     searchByname(name, id) {
-        const pinyin=pinyin(name)
+        const pinyin = pinyin(name)
         return this.isExist(pinyin[0].charCodeAt() - 97, id);
     }
 
@@ -144,7 +187,7 @@ class CourseTableByname extends hashTableByname {
     }
 
     searchByname(name, id) {
-        const pinyin=pinyin(name)
+        const pinyin = pinyin(name)
         return this.isExist(pinyin[0].charCodeAt() - 97, id);
     }
 
@@ -205,7 +248,7 @@ class CourseTableBytime extends hashTableBytime {
 //待完成：加个week属性
 class Course {
     // 构造方法
-    constructor(id, name, weekday, startTime, duration, periodic, location,startDate) {
+    constructor(id, name, weekday, startTime, duration, periodic, location, startDate) {
         this.id = id;
         this.name = name;
         this.weekday = weekday;
@@ -213,7 +256,7 @@ class Course {
         this.duration = duration;
         this.periodic = periodic;
         this.location = location;
-        this.startDate= startDate;
+        this.startDate = startDate;
         this.next = null;
     }
 }
@@ -231,7 +274,7 @@ class Exam {
     }
 }
 
-export { Node, list, Course, Exam, CourseTableByname, CourseTableBytime, ExamTableByname }
+export { Node, list, Course, Exam, CourseTableByname, CourseTableBytime, CourseTableById, ExamTableByname }
 
 /*测试插入和查找功能，以及是否有课程重复
 //!!!好像支持一门课有多个时间，但是由名字来决定的那个得改进TTTT
@@ -253,6 +296,8 @@ courseTableBytime.insert(course2);
 //console.log(courseTableByname.searchByname('ahujujiegou'));
 //console.log(courseTableByname.arr['s'.charCodeAt() - 97]);
 let exam = new Exam(989, '数据结构', "October 13, 1975 11:13:00", "October 13, 1975 11:13:00", 32);
+console.log(courseTableByname);
+console.log(courseTableBytime);
 //console.log(exam.start);
 /**/
 

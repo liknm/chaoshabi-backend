@@ -1,4 +1,4 @@
-import {Node, list, Course, Exam, CourseTableByname, CourseTableBytime, ExamTableByname} from './hash.mjs';
+import { Node, list, Course, Exam, CourseTableByname, CourseTableBytime, ExamTableByname } from './hash.mjs';
 import {
     Event,
     userNode,
@@ -10,8 +10,8 @@ import {
     ClassAVLTree,
     StuAVLTree
 } from './UserAVLTree.mjs';
-let maxCourseId=0;
-let UserTree=null;
+let maxCourseId = 0;
+let UserTree = null;
 //声明一个对象指向同一个实例
 function stuLoginIn(userName, passWord, UserTree) {
     let student = UserTree.searchByID(userName);
@@ -20,7 +20,7 @@ function stuLoginIn(userName, passWord, UserTree) {
 
         }
     } else {
-        return {message: "invalid username"}
+        return { message: "invalid username" }
     }
 }
 
@@ -92,10 +92,10 @@ function modifyExamLocation(name, id, location, examByname) {
     examByname.modifyLocation(name, id, location);
 }
 
-export function modifyExamEverything(startTime,endTime,location, id, name,examByName) {
-    examByName.modifyStartTime(name,id,startTime)
-    examByName.modifyEndTime(name,id,endTime);
-    examByName.modifyLocation(name,id,location);
+export function modifyExamEverything(startTime, endTime, location, id, name, examByName) {
+    examByName.modifyStartTime(name, id, startTime)
+    examByName.modifyEndTime(name, id, endTime);
+    examByName.modifyLocation(name, id, location);
 }
 //学生注册
 export function addStudent(username, password, Name, classnumber, stuTree, classTree) {
@@ -152,10 +152,70 @@ function addStaff(username, password, Name, staffs) {
     let staff = new staffNode(username, password, Name);
     staffs.addStaff(staff);
 }
-let stuTree=null;
-let courseByname=null;
-let examByname=null
-let courseBytime=null;
+
+
+//新增,很傻逼，随便找个哈希表遍历一遍，拿到全校的课
+function getAllCourse(courseBytime) {
+    let current;
+    const courses = [];
+    for (let i = 0; i < 7; i++) {
+        current = courseBytime.arr[i].next;
+        while (current) {
+            courses.push(current);
+            current = current.next;
+        }
+    }
+    return courses;
+}
+
+//拿到个人的课
+function getAllCourseForPerson(userName) {
+    const courses = [];
+    let student = stuTree.searchByID(userName);
+    courses = student.getAllCourse();
+}
+
+//拿到自己的所有活动
+function getAllEventForPerson(userName) {
+    const courses = [];
+    let student = stuTree.searchByID(userName);
+    courses = student.getAllEvent();
+}
+
+//修改个人活动
+function alterEventByPerson(userName, id, name, startTime, duration, reType, online, location, group, platform, website) {
+    let student = stuTree.searchByID(userName);
+    student.modifyEvent(id, name, startTime, duration, reType, online, location, group, platform, website);
+}
+
+//也就是修改集体事件
+function alterEventByMonitor(classIndex, id, name, startTime, duration, reType, online, location, group, platform, website) {
+    let Class = classTree.searchByID(userName);
+    Class.modifyEvent(id, name, startTime, duration, reType, online, location, group, platform, website);
+}
+
+//得到所有学生
+function getAllStudents(stuTree) {
+    const students = [];
+    students = stuTree.preOrderTraversal();
+}
+
+//删除活动
+function deletePersonEvent(userName, ID) {
+    let student = stuTree.searchByID(userName);
+    student.eventDelete(ID);
+}
+
+function deletePersonEvent(userName, ID) {
+    let Class = classTree.searchByID(userName);
+    Class.eventDelete(ID);
+}
+
+let stuTree = null;
+let classTree = null;
+let courseByname = null;
+let examByname = null
+let courseBytime = null;
 export function mainInit() {
     courseByname = new CourseTableByname();
     courseBytime = new CourseTableBytime();
@@ -166,9 +226,9 @@ export function mainInit() {
     init(courseByname, courseBytime, examByname);
 }
 
-export function insertUserCourse (userId,courseId,courseName) {
-    const student=stuTree.searchByID(userName);
-    const course=courseByname.searchById(courseId,courseName)
-    student.addCourse(course,courseBytime)
+export function insertUserCourse(userId, courseId, courseName) {
+    const student = stuTree.searchByID(userName);
+    const course = courseByname.searchById(courseId, courseName)
+    student.addCourse(course, courseBytime)
 
 }
