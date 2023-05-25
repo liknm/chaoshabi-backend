@@ -3,9 +3,9 @@ import autoLoad from '@fastify/autoload';
 import path from 'path';
 import {join} from "desm";
 import {mainInit} from "./database/main.mjs";
-
+import cors from '@fastify/cors'
 const app = fastify({logger:true});
-
+app.register(cors, { origin: '*' });
 // 加载自动装载程序以加载路由
 app.register(autoLoad, {
     dir: join(import.meta.url, 'routes'),

@@ -1,0 +1,139 @@
+### Course
+
+| type    | name      | description                                            |
+| ------- | --------- | ------------------------------------------------------ |
+| integer | id        | the unique id of a course                              |
+| string  | name      | the name of course                                     |
+| integer | weekday   | the weekday of going to course                         |
+| integer | startTime | start time of a course, e.g. 8, 20                     |
+| integer | duration  | the duration of a course, e.g. 2                       |
+| bool    | periodic  | if the course is periodic (repetition by week ) or not |
+| int     | location  | the id of location                                     |
+
+### Exam
+
+| type    | name      | description               |
+| ------- | --------- | ------------------------- |
+| integer | id        | the unique id of a course |
+| string  | name      | the name of an exam       |
+| Date    | startTime | the start of an exam      |
+| Date    | EndTime   | the end of an exam        |
+| int     | location  | the id of location        |
+
+### User
+
+| type      | name            | description            |
+| --------- | --------------- | ---------------------- |
+| string    | username        | username               |
+| string    | password        | password(encrypted)    |
+| string    | name            | name                   |
+| integer   | classNumber     | the index of class     |
+| List[int] | courseList      | list of courses        |
+| List[int] | eventList       | list of events         |
+| List[int] | group_eventList | list of group activity |
+
+### Class
+
+| type      | name           | description                          |
+| --------- | -------------- | ------------------------------------ |
+| string    | classIndex     | classIndex                           |
+| string    | classMember    | the number of students in this class |
+| Array     | classNumber    | Store student's ID                   |
+| integer   | classNumber    | the index of class                   |
+| List[int] | classEventList | list of the activity of this class   |
+
+### Event
+
+| type   | name     | description                                 |
+| ------ | -------- | ------------------------------------------- |
+| string | id       |                                             |
+| string | name     | name                                        |
+| Date   | start    |                                             |
+| int    | duration |                                             |
+| int    | reType   | 0 for once, 1 for everyday, 2 for each week |
+| bool   | online   |                                             |
+| int    | location | location id                                 |
+| int    | genre    | event genre                                 |
+| bool   | group    | is group or not                             |
+| string | platform | the name of platform                        |
+| string | website  | website for online activity                 |
+|        |          |                                             |
+
+### eventGenre
+
+| type   | name | description |
+| ------ | ---- | ----------- |
+| int    | id   | id          |
+| string | name | name        |
+
+| route                | method | description                                     | request body                                    | response                              |
+| -------------------- | ------ | ----------------------------------------------- | ----------------------------------------------- | ------------------------------------- |
+| /user/:id/course/    | get    | to get all courses that one has                 | -                                               | message:                              |
+| /user/:id/course/:id | delete | to delete one course someone have               | -                                               | message:                              |
+| /user/:id/course     | put    | to revise all the courses one has in one time   | an array of the user's all new courses' ids     | message:                              |
+| /user/:id/course     | post   | to add course for someone                       | id for the added course                         | message:                              |
+| /course              | get    | to get all courses                              | -                                               | an array for all the courses          |
+| /course/:id          | put    | to alter one course's information               | a object of the course                          | message:                              |
+| /course/:id          | delete | to delete a specific course                     | -                                               | message:                              |
+| /course              | post   | to add a course                                 | a object of the course                          | id for the added course               |
+| /event               | post   | to get all the events                           | -                                               | a array of all the events             |
+| /user/:id/event      | get    | to get one's all events                         | -                                               | an array of a user's all events       |
+| /user/:id/event/id   | delete | to delete an event one has                      | -                                               | message:                              |
+| /user/:id/event      | post   | to add one an event                             | the object for the added event                  | the id of the added event             |
+| /event/:id           | delete | to delete an event                              | -                                               | message:                              |
+| /event/:id           | put    | to revise an event                              | the object for the revised event                | message:                              |
+| /event/:id           | get    | to get detail information for a specific event  | -                                               | the object for the event              |
+| /exam                | get    | to get all the exams                            | -                                               | the array of objects of all the exams |
+| /exam                | post   | to add an exam                                  | the object for the added exam                   | message:                              |
+| /exam/:id            | get    | to get detailed information for a specific exam | -                                               | the object of a specific exam         |
+| /exam/:id            | delete | to delete a exam                                | -                                               | message:                              |
+| /exam/:id            | put    | to alter a exam                                 | the object for the altered exam                 | message:                              |
+| /user/:id/exam       | get    | to get a user's all exams                       | -                                               | the array of objects a user has       |
+| /user/:id/exam/:id   | delete | to delete an exam a user have                   | -                                               | message:                              |
+| /user/:id/exam       | put    | to one time revise all the exam a user has      | the array of ids for the user's new exams       | message:                              |
+| /user/:id/exam       | post   | to add a user a exam                            | the id of the added exam                        | message:                              |
+| /user                | get    | to get user list                                | -                                               | the array of objects of users         |
+| /user                | post   | to add a user                                   | the object of the information of the added user | message: and user's id                |
+| /user/:id            | put    | to alter a user's information                   | the object of the altered information           | message:                              |
+| /user/:id            | delete | to delete a user                                | -                                               | message:                              |
+|                      |        |                                                 |                                                 |                                       |
+
+以下是我现有的代码，可能包括一些错误：
+
+```javascript
+export const autoPrefix = '/_api'
+export default async function course(fastify, opts) {
+    const {} = fastify
+    fastify.route({
+        method: 'GET',
+        path: '/user/:id/course',
+        schema: {
+            querystring: {
+                type: 'object',
+                properties: {
+                    id: {type: 'string'}
+                },
+                required: ['id']
+            },
+            response: {
+                200: {
+                    type: 'object',
+                }
+            }
+        },
+        handler: getCourse
+    })
+
+    async function getCourse(req, reply) {
+        return {hello: 'world'}
+    }
+}
+
+```
+
+| route       | method | description                       | request body           | response                     |
+| ----------- | ------ | --------------------------------- | ---------------------- | ---------------------------- |
+| /course     | get    | to get all courses                | -                      | an array for all the courses |
+| /course/:id | put    | to alter one course's information | a object of the course | message:                     |
+| /course/:id | delete | to delete a specific course       | -                      | message:                     |
+| /course     | post   | to add a course                   | a object of the course | id for the added course      |

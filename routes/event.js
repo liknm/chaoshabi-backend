@@ -1,3 +1,5 @@
+import fs from "fs/promises";
+
 export const autoPrefix = '/_api'
 export default async function event(fastify, opts) {
     const {} = fastify
@@ -50,8 +52,8 @@ export default async function event(fastify, opts) {
     // 获取某个活动的详细信息
     fastify.route({
         method: 'GET',
-        path: '/event/:id',
-        schema: {
+        path: '/event',
+        /*schema: {
             response: {
                 200: {
                     type: 'object',
@@ -67,7 +69,7 @@ export default async function event(fastify, opts) {
                     }
                 }
             }
-        },
+        },*/
         handler: getEvent
     })
 
@@ -85,15 +87,11 @@ export default async function event(fastify, opts) {
     }
 
     async function getEvent(req, reply) {
-        const id = req.params.id;
-        //const event = await db.getEvent(id);
-        const event = {
-            id: 'string',
-            name: 'string',
-            description: 'string',
-            startTime: 'string',
-            endTime: 'string',
+        try{
+            const events = await fs.readFile('./database/event.json','utf8')
+            reply.send(events)
+        } catch (e) {
+            console.log(e)
         }
-        reply.send({event: event});
     }
 }

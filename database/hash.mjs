@@ -1,4 +1,6 @@
-import {pinyin} from "pinyin-pro";
+import pkg from 'pinyin-pro';
+const {pinyin} = pkg;
+
 
 class Node {
     constructor() {
@@ -35,8 +37,8 @@ class hashTableByname {
     }
 
     getKey(node) {
-        const pinyin=pinyin(node.name)
-        return pinyin[0].charCodeAt() - 97;
+        const pinyin1=pinyin(node.name)
+        return pinyin1[0].charCodeAt() - 97;
     }
 
     isExist(key, mainKey) {
@@ -119,8 +121,8 @@ class ExamTableByname extends hashTableByname {
     }
 
     searchByname(name, id) {
-        const pinyin=pinyin(name)
-        return this.isExist(pinyin[0].charCodeAt() - 97, id);
+        const pinyin1=pinyin(name)
+        return this.isExist(pinyin1[0].charCodeAt() - 97, id);
     }
 
     //管理员的功能
