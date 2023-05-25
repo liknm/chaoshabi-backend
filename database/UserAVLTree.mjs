@@ -1,6 +1,6 @@
 export { Event, userNode, ClassNode, staffNode, staffList, monitorNode, monitorList, ClassAVLTree, StuAVLTree }
 
-//import { CourseTableByname, CourseTableBytime, ExamTableByname } from './hash.mjs';
+import { CourseTableByname, CourseTableBytime, CourseTableById, ExamTableByname } from './hash.mjs';
 class Node {
     constructor() {
         this.data = 0;
@@ -44,11 +44,9 @@ class Course {
 }
 
 //上边好像都可以隐去
-
-let latestEventId = 0;
 class Event {
-    constructor(name, startTime, duration, reType, online, location, group, platform, website) {
-        this.id = latestEventId++;
+    constructor(id, name, startTime, duration, reType, online, location, group, platform, website) {
+        this.id = id;
         this.name = name;
         this.start = new Date(startTime);
         this.duration = duration;
@@ -131,11 +129,11 @@ class userNode {
             } else {
                 console.log("事件和已有课程冲突了");
                 //console.log("可选择的时间为" + this.searchTime(node.start.getDate(), node.start.getDay(), node.duration));
-                return this.searchTime(node.start.getDate(), node.start.getDay(), node.duration);
+                return this.searchTime(node.start.getDate(), node.start.getDay(), node.duration, courseBytime);
             }
         } else {
             console.log("事件和已有事件冲突了");  //待实现：提供三个可以的时间，没有可行的时间显示失败（个人活动）
-            return this.searchTime(node.start.getDate(), node.start.getDay(), node.duration);
+            return this.searchTime(node.start.getDate(), node.start.getDay(), node.duration, courseBytime);
         }
     }
 
@@ -145,6 +143,7 @@ class userNode {
             if (current.id === ID) {
                 return current;
             }
+            current = current.next;
         }
         return null;
     }
@@ -155,6 +154,7 @@ class userNode {
             if (previous.next.id === ID) {
                 return previous;
             }
+            previous = previous.next;
         }
         return null;
     }
@@ -167,10 +167,20 @@ class userNode {
         current.next = null;
     }
 
+    getAllCorseID() {
+        let current;
+        const coursesId = [];
+        current = this.courseList.head.next;
+        while (current) {
+            coursesId.push(current.data);
+            current = current.next;
+        }
+    }
+
     getAllEvent() {
         const events = [];
-        let event = this.eventList.head;
-        let groupEvent = this.group_eventList.head;
+        let event = this.eventList.head.next;
+        let groupEvent = this.group_eventList.head.next;
         while (event) {
             let temp = Object.assign(new Event(), event);
             delete temp.next;
@@ -284,12 +294,12 @@ class userNode {
         return false;
     }
 
-    //判断备选时间是否与课程冲突
-    isNotAvailableForCourse(weekday, startTime, duration) {
+    //判断备选时间是否与课程冲突,wenti
+    isNotAvailableForCourse(weekday, startTime, duration, courseBytime) {
         let tempNode;
         let current = this.courseList.head;
         while (current) {
-            if (tempNode === courseBytime.isExist(weekday, current.data)) {
+            if (tempNode = courseBytime.isExist(weekday, current.data)) {
                 if ((tempNode.startTime <= startTime && tempNode.startTime + tempNode.duration >= startTime) || (startTime <= tempNode.startTime && startTime + duration >= tempNode.startTime
                 )) {
                     return true;
@@ -301,7 +311,7 @@ class userNode {
     }
 
     //为个人活动寻找时间,有问题还得改
-    searchTime(date, weekday, duration) {
+    searchTime(date, weekday, duration, courseBytime) {
         let transWeekday;
         if (weekday === 0) {
             transWeekday = 6;
@@ -318,7 +328,7 @@ class userNode {
         //找到指定班级
         //遍历8点到20点判断时间点是否空闲
         for (let i = 6; i < 22; i++) {
-            if (this.isNotAvailableForGroupevent(date, duration, i) || this.isNotAvailableForEvent(date, i, duration) || this.isNotAvailableForCourse(transWeekday, i, duration)) {
+            if (this.isNotAvailableForGroupevent(date, duration, i) || this.isNotAvailableForEvent(date, i, duration) || this.isNotAvailableForCourse(transWeekday, i, duration, courseBytime)) {
                 arr[i - 6] = -1;
             }
         }
@@ -393,6 +403,7 @@ class ClassNode {
             if (current.id === ID) {
                 return current;
             }
+            current = current.next;
         }
         return null;
     }
@@ -403,6 +414,7 @@ class ClassNode {
             if (previous.next.id === ID) {
                 return previous;
             }
+            previous = previous.next;
         }
         return null;
     }
@@ -625,6 +637,7 @@ class monitorList extends list {
         }
         return null;
     }
+
 }
 
 /*测试staff链表
@@ -782,6 +795,23 @@ class ClassAVLTree {
     getClassEvent(classIndex) {
         return this.searchByIndex(classIndex).classEventList;
     }
+
+    preOrderTraversal() {
+        const allClasses = [];
+        this._preOrderTraversal(this.root, allClasses);
+        return allClasses;
+    }
+
+    _preOrderTraversal(node, allClasses) {
+        if (node) {
+            let temp = Object.assign(new userNode(), node);
+            delete temp.left;
+            delete temp.right;
+            allClasses.push(temp);
+            this._preOrderTraversal(node.left, allClasses);
+            this._preOrderTraversal(node.right, allClasses);
+        }
+    }
 }
 
 class StuAVLTree {
@@ -875,12 +905,12 @@ class StuAVLTree {
 
     _preOrderTraversal(node, allStudents) {
         if (node) {
-            let temp = Object(new userNode(), node);
+            let temp = Object.assign(new userNode(), node);
             delete temp.left;
             delete temp.right;
             allStudents.push(temp);
-            this._preOrderTraversal(node.left, result);
-            this._preOrderTraversal(node.right, result);
+            this._preOrderTraversal(node.left, allStudents);
+            this._preOrderTraversal(node.right, allStudents);
         }
     }
 }
@@ -1002,3 +1032,97 @@ var main = () => {
         }
     }
 }*/
+
+
+/*测试删除事件,根据ID获得事件,
+let courseBytime1 = new CourseTableBytime();
+courseBytime1.initHashTable();
+let classEventList = new list();
+let user1 = new userNode('0989', '0989', '赖裕洲', 302, classEventList);
+let event0 = new Event(1, '吃饭', '2023-05-08T14:00:00', 1, false, false, null, false, null, null);
+let event1 = new Event(2, '集体睡觉', '2023-05-09T14:00:00', 1, false, false, null, false, null, null);
+let event2 = new Event(3, '吃饭', '2023-05-10T14:00:00', 1, false, false, null, false, null, null);
+classEventList.addNode(event1);
+user1.addEvent(event0, courseBytime1);
+//user1.addEvent(event1, courseBytime1);
+user1.addEvent(event2, courseBytime1);
+//user1.eventDelete(0);
+//console.log(user1.getEventById(2));
+console.log(user1.getAllEvent());
+/**/
+
+/*测试树的前序遍历
+let courseBytime1 = new CourseTableBytime();
+courseBytime1.initHashTable();
+let classEventList = new list();
+let user1 = new userNode('0989', '0989', '赖裕洲', 302, classEventList);
+let user2 = new userNode('0983', '0989', '赖裕洲', 302, classEventList);
+let user3 = new userNode('0982', '0989', '赖裕洲', 302, classEventList);
+let user4 = new userNode('0981', '0989', '赖裕洲', 302, classEventList);
+let stuTree = new StuAVLTree();
+stuTree.insertNode(user1);
+stuTree.insertNode(user2);
+stuTree.insertNode(user3);
+stuTree.insertNode(user4);
+console.log(stuTree.preOrderTraversal());
+*/
+
+/*测试拿到一个学生所有课程
+let courseBytime1 = new CourseTableBytime();
+let courseById = new CourseTableById();
+courseBytime1.initHashTable();
+courseById.initHashTable();
+let classEventList = new list();
+let user1 = new userNode('0989', '0989', '赖裕洲', 302, classEventList);
+let course = new Course(12, 'shujujiegou', 1, 15, 1, false, 1);
+let course1 = new Course(13, 'lisanshuxue', 1, 12, 1, false, 1);
+let course2 = new Course(14, 'maogai', 1, 10, 1, false, 1);
+let course3 = new Course(15, 'jisuanjiwangluo', 1, 8, 1, false, 1);
+let course4 = new Course(16, 'maogai', 2, 12, 1, false, 1);
+let course5 = new Course(17, 'shujujiego', 2, 15, 1, false, 1);
+let course6 = new Course(18, 'shujujieg', 3, 12, 1, false, 1);
+let course7 = new Course(19, 'shuju', 3, 15, 1, false, 1);
+courseById.insert(course);
+courseById.insert(course1);
+courseById.insert(course2);
+courseById.insert(course3);
+courseById.insert(course4);
+courseById.insert(course5);
+courseById.insert(course6);
+courseById.insert(course7);
+courseBytime1.insert(course);
+courseBytime1.insert(course1);
+courseBytime1.insert(course2);
+courseBytime1.insert(course3);
+courseBytime1.insert(course4);
+courseBytime1.insert(course5);
+courseBytime1.insert(course6);
+courseBytime1.insert(course7);
+user1.addCourse(course, courseBytime1);
+user1.addCourse(course1, courseBytime1);
+user1.addCourse(course2, courseBytime1);
+user1.addCourse(course3, courseBytime1);
+user1.addCourse(course4, courseBytime1);
+user1.addCourse(course5, courseBytime1);
+user1.addCourse(course6, courseBytime1);
+user1.addCourse(course7, courseBytime1);
+//console.log(user1.getAllCourse(courseById));
+//console.log(courseBytime1.arr[6].head);
+
+function getAllCourse(courseBytime) {
+    let current;
+    const courses = [];
+    for (let i = 0; i < 7; i++) {
+        current = courseBytime.arr[i].head.next;
+        while (current) {
+            let temp = Object.assign(new Course(), current);
+            delete temp.next;
+            courses.push(temp);
+            current = current.next;
+        }
+    }
+    return courses;
+}
+
+console.log(getAllCourse(courseBytime1));
+*/

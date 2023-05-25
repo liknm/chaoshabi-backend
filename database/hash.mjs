@@ -1,4 +1,5 @@
-import { pinyin } from "pinyin-pro";
+import pkg from 'pinyin-pro';
+const { pinyin } = pkg;
 
 class Node {
     constructor() {
@@ -35,8 +36,8 @@ class hashTableByname {
     }
 
     getKey(node) {
-        const pinyin = pinyin(node.name)
-        return pinyin[0].charCodeAt() - 97;
+        const pinYin = pinyin(node.name)
+        return pinYin[0].charCodeAt() - 97;
     }
 
     isExist(key, mainKey) {
@@ -71,7 +72,7 @@ class hashTableBytime {
     }
 
     initHashTable() {
-        for (let i = 0; i < 6; i++) {
+        for (let i = 0; i < 7; i++) {
             this.arr[i] = new list();
         }
     }
@@ -162,8 +163,8 @@ class ExamTableByname extends hashTableByname {
     }
 
     searchByname(name, id) {
-        const pinyin = pinyin(name)
-        return this.isExist(pinyin[0].charCodeAt() - 97, id);
+        const pinYin = pinyin(name)
+        return this.isExist(pinYin[0].charCodeAt() - 97, id);
     }
 
     //管理员的功能
@@ -187,8 +188,8 @@ class CourseTableByname extends hashTableByname {
     }
 
     searchByname(name, id) {
-        const pinyin = pinyin(name)
-        return this.isExist(pinyin[0].charCodeAt() - 97, id);
+        const pinYin = pinyin(name)
+        return this.isExist(pinYin[0].charCodeAt() - 97, id);
     }
 
     //管理员功能
@@ -278,7 +279,7 @@ export { Node, list, Course, Exam, CourseTableByname, CourseTableBytime, CourseT
 
 /*测试插入和查找功能，以及是否有课程重复
 //!!!好像支持一门课有多个时间，但是由名字来决定的那个得改进TTTT
-let course = new Course(12, 'shujujiegou', 1, 15, 3, false, 1);
+let course = new Course(12, '数据结构', 1, 15, 3, false, 1);
 let courseTableByname = new CourseTableByname();
 let courseTableBytime = new CourseTableBytime();
 courseTableByname.initHashTable();
@@ -286,8 +287,8 @@ courseTableBytime.initHashTable();
 courseTableByname.insert(course);
 let course1 = new Course(13, 'ahujujiegou', 1, 15, 3, false, 1);
 courseTableByname.insert(course1);
-let course2 = new Course(12, 'shujujiegou', 3, 15, 3, false, 1);
-//courseTableByname.insert(course2);
+let course2 = new Course(12, '数据结构', 3, 15, 3, false, 1);
+courseTableByname.insert(course2);
 courseTableBytime.insert(course);
 courseTableBytime.insert(course1);
 courseTableBytime.insert(course2);

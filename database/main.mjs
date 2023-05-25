@@ -159,9 +159,11 @@ function getAllCourse(courseBytime) {
     let current;
     const courses = [];
     for (let i = 0; i < 7; i++) {
-        current = courseBytime.arr[i].next;
+        current = courseBytime.arr[i].head.next;
         while (current) {
-            courses.push(current);
+            let temp = Object.assign(new Course(), current);
+            delete temp.next;
+            courses.push(temp);
             current = current.next;
         }
     }
@@ -206,7 +208,7 @@ function deletePersonEvent(userName, ID) {
     student.eventDelete(ID);
 }
 
-function deletePersonEvent(userName, ID) {
+function deleteGroupEvent(userName, ID) {
     let Class = classTree.searchByID(userName);
     Class.eventDelete(ID);
 }
