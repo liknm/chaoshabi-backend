@@ -117,6 +117,91 @@ class hashTableBytime {
     }
 }
 
+//更改
+class hashTableById {
+    constructor() {
+        this.arr = new Array(13);
+    }
+
+    initHashTable() {
+        for (let i = 0; i < 13; i++) {
+            this.arr[i] = new list();
+        }
+    }
+
+    getKey(node) {
+        return node.id % 13;
+    }
+
+    //key是ID模除13的值，mainkey是课程ID
+    isExist(mainKey) {
+        let key = mainKey % 13;
+        let current = this.arr[key].head;
+        while (current) {
+            if (current.id === mainKey) {
+                return current;
+            }
+            current = current.next;
+        }
+        return null;
+    }
+
+    insert(node) {
+        if (!this.isExist(this.getKey(node), node.id)) {
+            let tempNode = new Course();
+            tempNode = Object.assign(new Course(), node);
+            this.arr[this.getKey(node)].addNode(tempNode);
+        } else {
+            console.log('课表中已经有这门课');
+        }
+    }
+}
+
+//更改
+class CourseTableById extends hashTableById {
+    constructor() {
+        super();
+    }
+
+    //管理员功能
+    modifyTime(id, time) {
+        this.isExist(id).startTime = time;
+    }
+
+    modifyDuration(id, duration) {
+        this.isExist(id).duration = duration;
+    }
+
+    modifyLocation(id, location) {
+        this.isExist(id).location = location;
+    }
+
+    modifyWeekday(id, newWeekday) {
+        this.isExist(id).weekday = newWeekday;
+    }
+}
+
+//更改
+class ExamTableById extends hashTableById {
+    constructor() {
+        super();
+    }
+
+    //管理员的功能
+    modifyStartTime(id, Start) {
+        this.isExist(id).start = Start;
+    }
+
+    modifyEndTime(id, End) {
+        this.isExist(id).end = End;
+    }
+
+    modifyLocation(id, location) {
+        this.isExist(id).location = location;
+    }
+
+}
+
 class CourseTableById {
     constructor() {
         this.arr = new Array(13);
@@ -275,7 +360,7 @@ class Exam {
     }
 }
 
-export { Node, list, Course, Exam, CourseTableByname, CourseTableBytime, CourseTableById, ExamTableByname }
+export { Node, list, Course, Exam, CourseTableByname, CourseTableBytime, CourseTableById, ExamTableByname, ExamTableById }
 
 /*测试插入和查找功能，以及是否有课程重复
 //!!!好像支持一门课有多个时间，但是由名字来决定的那个得改进TTTT
