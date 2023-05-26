@@ -283,6 +283,7 @@ class ClassNode {
         this.right = null;
         this.classNumber = new Array(45);   //班内学生学号数组存储
         this.classEventList = new list();
+
     }
 
     addNumber(userName) {

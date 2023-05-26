@@ -1,4 +1,4 @@
-[{"id":1,"name":"Promethazine Hydrochloride","weekday":5,"startTime":18,"duration":1,"periodic":false,"location":76},
+[{"id":1,"name":"Promethazine Hydrochloride","weekday":5,"startTime":20,"duration":1,"periodic":false,"location":76},
   {"id":2,"name":"Carelessweed","weekday":7,"startTime":15,"duration":1,"periodic":false,"location":8},
   {"id":3,"name":"CC SPF 18","weekday":3,"startTime":21,"duration":2,"periodic":true,"location":37},
   {"id":4,"name":"Haloperidol","weekday":3,"startTime":8,"duration":3,"periodic":false,"location":38},

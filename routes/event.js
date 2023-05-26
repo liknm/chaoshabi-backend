@@ -72,7 +72,13 @@ export default async function event(fastify, opts) {
             }
         },*/
         handler: getEvent
+    },
+    fastify.route({
+        method:'GET',
+        path:'/event/category',
+        handler:getEventCategoryList
     })
+    )
 
     async function deleteEvent(req, reply) {
         const id = req.params.id;
@@ -93,6 +99,15 @@ export default async function event(fastify, opts) {
             reply.send(events)
         } catch (e) {
             console.log(e)
+        }
+    }
+    async function getEventCategoryList(req,reply) {
+        try {
+            const categories=await fs.readFile('./database/eventCategories.json','utf8')
+            reply.send(categories)
+        } catch (e) {
+            console.log(e)
+            reply.status(500).send(e)
         }
     }
 }

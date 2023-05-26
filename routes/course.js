@@ -121,8 +121,9 @@ export default async function course(fastify, opts) {
     })
 
     async function getCourses(req, reply) {
-        try{
-            const courses=getAllCoursesR()
+        try{/*
+            const courses=getAllCoursesR()*/
+            const courses=await fs.readFile('./database/course.json','utf8')
             reply.send(courses)
         } catch (e) {
             console.log(e)
