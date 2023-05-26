@@ -1,4 +1,4 @@
-import  {addCourse,modifyExamEverything} from '../database/main.mjs'
+import {createCourse, getAllCourseForPerson, getAllCoursesR, modifyExamEverything} from '../database/main.mjs'
 import fs from 'fs/promises'
 export const autoPrefix = '/_api'
 export default async function course(fastify, opts) {
@@ -122,8 +122,7 @@ export default async function course(fastify, opts) {
 
     async function getCourses(req, reply) {
         try{
-            const courses = await fs.readFile('./database/course.json','utf8')
-            console.log(courses)
+            const courses=getAllCoursesR()
             reply.send(courses)
         } catch (e) {
             console.log(e)
@@ -131,15 +130,19 @@ export default async function course(fastify, opts) {
     }
 
     async function getUserCourses(req, reply) {
-        const { id } = req.query
-        const userCourses = courses.filter(c => c.userId === id)
+        const { id } = req.params.id
+        const userCourses = getAllCourseForPerson(id)
         reply.send(userCourses)
     }
 
     async function addCourse(req, reply) {
         const course = req.body
-        //addCourse(...course);
-        reply.code(201).send({ message: 'Course added successfully', id })
+        const id=createCourse(course)
+        if (id==null) {
+            reply.status(500).send({message:'Course has existed'})
+        } else {
+            reply.status(200).send(id)
+        }
     }
 
     async function updateCourse(req, reply) {

@@ -1,4 +1,5 @@
 import fs from "fs/promises";
+import {deleteGroupEvent} from "../database/main.mjs";
 
 export const autoPrefix = '/_api'
 export default async function event(fastify, opts) {
@@ -75,7 +76,7 @@ export default async function event(fastify, opts) {
 
     async function deleteEvent(req, reply) {
         const id = req.params.id;
-        //await db.deleteEvent(id);
+        //deleteGroupEvent(req.)
         reply.send({message: 'Event deleted successfully'});
     }
 

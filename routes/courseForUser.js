@@ -1,7 +1,7 @@
 import user from "./user.js";
 
 export const autoPrefix = '/_api'
-import {addCourse, insertUserCourse, modifyExamEverything} from '../database/main.mjs'
+import {createCourse, insertUserCourse, modifyExamEverything} from '../database/main.mjs'
 import fs from "fs";
 export default async function course(fastify, opts) {
     const {} = fastify

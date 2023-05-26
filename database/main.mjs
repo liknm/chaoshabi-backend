@@ -1,4 +1,13 @@
-import { Node, list, Course, Exam, CourseTableByname, CourseTableBytime, ExamTableByname } from './hash.mjs';
+import {
+    Node,
+    list,
+    Course,
+    Exam,
+    CourseTableByname,
+    CourseTableBytime,
+    ExamTableByname,
+    CourseTableById
+} from './hash.mjs';
 import {
     Event,
     userNode,
@@ -10,8 +19,8 @@ import {
     ClassAVLTree,
     StuAVLTree
 } from './UserAVLTree.mjs';
-let maxCourseId = 0;
-let UserTree = null;
+let maxCourseId=0;
+let UserTree=null;
 //声明一个对象指向同一个实例
 function stuLoginIn(userName, passWord, UserTree) {
     let student = UserTree.searchByID(userName);
@@ -20,7 +29,7 @@ function stuLoginIn(userName, passWord, UserTree) {
 
         }
     } else {
-        return { message: "invalid username" }
+        return {message: "invalid username"}
     }
 }
 
@@ -48,15 +57,19 @@ function staffLogin(userName, passWord, staffs) {
 function init(courseByname, courseBytime, examByname) {
     courseByname.initHashTable();
     courseBytime.initHashTable();
+    courseById.initHashTable();
     examByname.initHashTable();
 }
 
 //创建新课程
-export function addCourse(name, weekday, startTime, duration, periodic, location, courseByname, courseBytime) {
+export function createCourse(name, weekday, startTime, duration, periodic, location, courseByname, courseBytime) {
 
     let course = new Course(maxCourseId++, name, weekday, startTime, duration, periodic, location);
-    courseByname.insert(course);
-    courseBytime.insert(course);
+    const flag1=courseByname.insert(course);
+    const flag2=courseBytime.insert(course);
+    const flag3=courseById.insert(course);
+    const finalFlag=flag1&&flag2&&flag3
+    return (finalFlag?flag1:null)
 }
 
 //各种修改课程或考试的信息
@@ -92,10 +105,10 @@ function modifyExamLocation(name, id, location, examByname) {
     examByname.modifyLocation(name, id, location);
 }
 
-export function modifyExamEverything(startTime, endTime, location, id, name, examByName) {
-    examByName.modifyStartTime(name, id, startTime)
-    examByName.modifyEndTime(name, id, endTime);
-    examByName.modifyLocation(name, id, location);
+export function modifyExamEverything(startTime,endTime,location, id, name,examByName) {
+    examByName.modifyStartTime(name,id,startTime)
+    examByName.modifyEndTime(name,id,endTime);
+    examByName.modifyLocation(name,id,location);
 }
 //学生注册
 export function addStudent(username, password, Name, classnumber, stuTree, classTree) {
@@ -155,7 +168,7 @@ function addStaff(username, password, Name, staffs) {
 
 
 //新增,很傻逼，随便找个哈希表遍历一遍，拿到全校的课
-function getAllCourse(courseBytime) {
+export function getAllCourse(courseBytime) {
     let current;
     const courses = [];
     for (let i = 0; i < 7; i++) {
@@ -169,17 +182,20 @@ function getAllCourse(courseBytime) {
     }
     return courses;
 }
-
-//拿到个人的课
-function getAllCourseForPerson(userName) {
-    const courses = [];
-    let student = stuTree.searchByID(userName);
-    courses = student.getAllCourse();
+export function getAllCoursesR() {
+    return getAllCourse(courseBytime)
 }
-
+//拿到个人的课
+export function getAllCourseForPerson(userName) {
+    const student = stuTree.searchByID(userName);
+    return student.getAllCourse() || []
+}
+export function getAllCourseForOneMan() {
+    return getAllEventForPerson()
+}
 //拿到自己的所有活动
 function getAllEventForPerson(userName) {
-    const courses = [];
+    let courses = [];
     let student = stuTree.searchByID(userName);
     courses = student.getAllEvent();
 }
@@ -198,18 +214,18 @@ function alterEventByMonitor(classIndex, id, name, startTime, duration, reType, 
 
 //得到所有学生
 function getAllStudents(stuTree) {
-    const students = [];
+    let students = [];
     students = stuTree.preOrderTraversal();
 }
 
 //删除活动
-function deletePersonEvent(userName, ID) {
+export function deletePersonEvent(userName, ID) {
     let student = stuTree.searchByID(userName);
     student.eventDelete(ID);
 }
 
-function deleteGroupEvent(userName, ID) {
-    let Class = classTree.searchByID(userName);
+export function deleteGroupEvent(classIndex, ID) {
+    let Class = classTree.searchByID(classIndex);
     Class.eventDelete(ID);
 }
 
@@ -218,19 +234,21 @@ let classTree = null;
 let courseByname = null;
 let examByname = null
 let courseBytime = null;
+let courseById=null
 export function mainInit() {
     courseByname = new CourseTableByname();
     courseBytime = new CourseTableBytime();
     examByname = new ExamTableByname();
+    courseById=new CourseTableById()
     let classTree = new ClassAVLTree();
     let stuTree = new StuAVLTree();
     let staffs = new staffList();
     init(courseByname, courseBytime, examByname);
 }
 
-export function insertUserCourse(userId, courseId, courseName) {
-    const student = stuTree.searchByID(userName);
-    const course = courseByname.searchById(courseId, courseName)
-    student.addCourse(course, courseBytime)
+export function insertUserCourse (userId,courseId,courseName) {
+    const student=stuTree.searchByID(userName);
+    const course=courseByname.searchById(courseId,courseName)
+    student.addCourse(course,courseBytime)
 
 }
