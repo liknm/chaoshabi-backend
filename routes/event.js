@@ -77,7 +77,7 @@ export default async function event(fastify, opts) {
         method:'GET',
         path:'/event/category',
         handler:getEventCategoryList
-    })
+    }),
     )
 
     async function deleteEvent(req, reply) {

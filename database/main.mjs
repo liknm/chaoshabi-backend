@@ -21,6 +21,7 @@ import {
     StuAVLTree
 } from './UserAVLTree.mjs';
 let maxCourseId = 0;
+let maxExam=0
 let UserTree = null;
 //声明一个对象指向同一个实例
 function stuLoginIn(userName, passWord, UserTree) {
@@ -77,11 +78,11 @@ export function createCourse(name, weekday, startTime, duration, periodic, locat
 //新：创建新考试
 export function createExam(name, startTime, EndTime, location) {
 
-    let course = new Exam(maxCourseId++, name, startTime, EndTime, location);
+    let course = new Exam(maxExam++, name, startTime, EndTime, location);
     const flag1 = examByName.insert(course);
     const flag2 = examById.insert(course);
     const finalFlag = flag1 && flag2;
-    return (finalFlag ? flag1 : null)
+    return (finalFlag)
 }
 
 /*
@@ -164,15 +165,17 @@ function stuAddCourse(courseId, username, stuTree) {
 }
 
 //学生添加个人事件，带判断那种，就是有冲突会反馈给你三个时间点
-function stuAddEvent(name, startTime, duration, reType, online, location, group, platform, website, studentNode) {
+export function stuAddEvent(name, startTime, duration, reType, online, location, group, platform, website, username) {
+    const studentNode=stuTree.searchByID(username)
     let event = new Event(name, startTime, duration, reType, online, location, group, platform, website);
-    if (studentNode.addEvent(event)) {
+    if (studentNode.addEvent(event,courseBytime,examById)) {
         let available = new Array(3);
-        available = studentNode.addEvent(event);
+        available = studentNode.addEvent(event,courseBytime,examById);
         console.log(available);
-    } /*else {   前边如果没问题会添加的，不用再单列这个情况了
-        stuTree.searchByID(username).addEvent(event);
-    }*/
+        return available
+    } else {   //前边如果没问题会添加的，不用再单列这个情况了
+        return null
+    }
 }
 
 //学生调用查找第二天课程
@@ -226,7 +229,7 @@ export function getAllCoursesR() {
 
 
 //新：拿到全校的考试
-export function getAllCourse() {
+export function getAllExamForAdmin() {
     let current;
     const exams = [];
     for (let i = 0; i < 13; i++) {
@@ -251,17 +254,18 @@ export function getAllCourseForOneMan() {
 }
 
 //新：拿到个人的考试
-export function getAllExam(userName) {
+export function getAllExamForStudent(userName) {
     const student = stuTree.searchByID(userName);
     return student.getAllExam() || []
 }
 
 
 //拿到自己的所有活动
-function getAllEventForPerson(userName) {
+export function getAllEventForPerson(userName) {
     let courses = [];
     let student = stuTree.searchByID(userName);
     courses = student.getAllEvent();
+    return courses
 }
 
 //修改个人活动

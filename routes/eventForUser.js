@@ -1,3 +1,6 @@
+import {getAllEventForPerson, stuAddEvent} from "../database/main.mjs";
+import user from "./user.js";
+
 export const autoPrefix = '/_api'
 export default async function event(fastify, opts) {
     const {} = fastify
@@ -88,18 +91,10 @@ export default async function event(fastify, opts) {
     })
 
     async function getAllEventsForUser(req, reply) {
-        const userId = req.params.userId;
-        //const events = await db.getUserEvents(userId);
-        const events=[
-            {
-                eventId: 'string',
-                eventName: 'string',
-                eventDescription: 'string',
-                eventStartTime: 'string',
-                eventEndTime: 'string',
-            }
-        ]
-        reply.send(events);
+        const data=req.body
+        const userId=req.params.userId
+        const result=getAllEventForPerson(userId)
+        reply.status(200).send(result)
     }
 
     async function deleteEventForUser(req, reply) {
@@ -119,7 +114,12 @@ export default async function event(fastify, opts) {
     async function addEventForUser(req, reply) {
         const userId = req.params.userId;
         const event = req.body;
-        //await db.addEventForUser(userId, event);
-        reply.send({ message: 'Event added successfully' });
+        const available=stuAddEvent(...event,userId)
+        if (available===null) {
+            reply.send({message:true})
+        } else {
+            reply.send({success:false,available})
+
+        }
     }
 }

@@ -1,7 +1,7 @@
 import user from "./user.js";
 
 export const autoPrefix = '/_api'
-import {createCourse, insertUserCourse, modifyExamEverything} from '../database/main.mjs'
+import {createCourse, getAllCourseForPerson, insertUserCourse, modifyExamEverything} from '../database/main.mjs'
 import fs from "fs";
 export default async function course(fastify, opts) {
     const {} = fastify
@@ -9,7 +9,7 @@ export default async function course(fastify, opts) {
     fastify.route({
         method: 'GET',
         path: '/user/:id/course/all',
-        schema: {
+        /*schema: {
             response: {
                 200: {
                     type: 'array',
@@ -25,7 +25,7 @@ export default async function course(fastify, opts) {
                     },
                 }
             }
-        },
+        },*/
         handler: getAllCourses
     })
 
@@ -92,18 +92,9 @@ export default async function course(fastify, opts) {
     })
 
     async function getAllCourses(req, reply) {
-        const id = req.params.id;
-        //const courses = await db.getUserCourses(id);
-        const courses=[
-            {
-                id: 'string',
-                name: 'string',
-                description: 'string',
-                start_date: 'string',
-                end_date: 'string',
-            }
-        ]
-        reply.send(courses);
+        const { id } = req.params.id
+        const userCourses = getAllCourseForPerson(id)
+        reply.send(userCourses)
     }
 
     async function deleteCourse(req, reply) {

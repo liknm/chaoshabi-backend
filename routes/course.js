@@ -1,4 +1,10 @@
-import {createCourse, getAllCourseForPerson, getAllCoursesR, modifyExamEverything} from '../database/main.mjs'
+import {
+    createCourse,
+    getAllCourseForPerson,
+    getAllCoursesR,
+    modifyCourseEverything,
+    modifyExamEverything
+} from '../database/main.mjs'
 import fs from 'fs/promises'
 export const autoPrefix = '/_api'
 export default async function course(fastify, opts) {
@@ -123,7 +129,8 @@ export default async function course(fastify, opts) {
     async function getCourses(req, reply) {
         try{/*
             const courses=getAllCoursesR()*/
-            const courses=await fs.readFile('./database/course.json','utf8')
+            //const courses=await fs.readFile('./database/course.json','utf8')
+            const courses=getAllCoursesR()
             reply.send(courses)
         } catch (e) {
             console.log(e)
@@ -149,7 +156,7 @@ export default async function course(fastify, opts) {
     async function updateCourse(req, reply) {
         const courses = req.body;
         const id=req.params.id;
-        modifyExamEverything(...courses);
+        modifyCourseEverything(...courses);
         reply.send({ message: 'Courses revised successfully' });
     }
 

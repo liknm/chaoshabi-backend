@@ -58,6 +58,7 @@ class hashTableByname {
             let tempNode = new Course();
             tempNode = Object.assign(new Course(), node);
             this.arr[this.getKey(node)].addNode(tempNode);
+            return true
         } else {
             console.log('课表中已经有这门课');
         }
@@ -111,6 +112,7 @@ class hashTableBytime {
             let tempNode = new Course();
             tempNode = Object.assign(new Course(), node);
             this.arr[this.getKey(node)].addNode(tempNode);
+            return true
         } else {
             console.log('课表中已经有这门课');
         }
@@ -151,6 +153,7 @@ class hashTableById {
             let tempNode = new Course();
             tempNode = Object.assign(new Course(), node);
             this.arr[this.getKey(node)].addNode(tempNode);
+            return true
         } else {
             console.log('课表中已经有这门课');
         }
@@ -201,7 +204,7 @@ class ExamTableById extends hashTableById {
     }
 
 }
-
+/*
 class CourseTableById {
     constructor() {
         this.arr = new Array(13);
@@ -239,7 +242,7 @@ class CourseTableById {
             console.log('课表中已经有这门课');
         }
     }
-}
+}*/
 
 
 class ExamTableByname extends hashTableByname {
