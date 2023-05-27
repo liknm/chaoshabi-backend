@@ -1,554 +1,1187 @@
-import {
-    Node,
-    list,
-    Course,
-    Exam,
-    CourseTableByname,
-    CourseTableBytime,
-    CourseTableById,
-    ExamTableByname,
-    ExamTableById,
-} from './hash.mjs';
-import {
-    Event,
-    userNode,
-    ClassNode,
-    staffNode,
-    staffList,
-    monitorNode,
-    monitorList,
-    ClassAVLTree,
-    StuAVLTree
-} from './UserAVLTree.mjs';
-
 import fs from "fs";
-import {modifyStaffEverything} from "../日程管理模块/main.mjs";
-let maxCourseId = 0;
-let maxExam=0
-let UserTree = null;
-//声明一个对象指向同一个实例
-function stuLoginIn(userName, passWord, UserTree) {
-    let student = UserTree.searchById(userName);
-    if (student) {
-        if (student.password === passWord) {
 
+export { Event, userNode, ClassNode, staffNode, staffList, monitorNode, monitorList, ClassAVLTree, StuAVLTree }
+
+import { CourseTableByname, CourseTableBytime, CourseTableById, ExamTableByname, Exam } from './hash.mjs';
+import {addToJSON, loadJSON} from "./main.mjs";
+class Node {
+    constructor() {
+        this.data = 0;
+        this.next = null;
+    }
+
+    setdata(ID) {
+        this.data = ID;
+    }
+}
+
+class list {
+    constructor() {
+        this.head = new Node();
+        this.tail = this.head;
+        this.length = 0;
+    }
+
+    // 链表尾部添加结点
+    addNode(node) {
+        //newNode = node;
+        this.tail.next = node;
+        this.tail = node;
+        this.length++;
+    }
+}
+
+
+class Course {
+    // 构造方法
+    constructor(id, name, weekday, startTime, duration, periodic, location) {
+        this.id = id;
+        this.name = name;
+        this.weekday = weekday;
+        this.startTime = startTime;
+        this.duration = duration;
+        this.periodic = periodic;
+        this.location = location;
+        this.next = null;
+    }
+}
+
+//上边好像都可以隐去
+class Event {
+    constructor(id, name, startTime, duration, reType, online, location, group, platform, website) {
+        this.id = id;
+        this.name = name;
+        this.start = new Date(startTime);
+        this.duration = duration;
+        this.reType = reType;//0 once  1 everyday  2 each week
+        this.online = online;
+        this.location = location;
+        this.group = group;//都不用这个属性其实
+        this.platform = platform;
+        this.website = website;
+        this.next = null;
+    }
+}
+
+
+//加一个属性，在声明对象的时候将所在班的事件链表头节点给它
+//记得在构造的时候将班级事务的链表头给它
+class userNode {
+    constructor(username, password, Name, classnumber, listHead) {
+        this.userName = username;
+        this.passWord = password;
+        this.name = Name;
+        this.classNumber = classnumber;
+        this.courseList = new list();
+        this.examList = new list();
+        this.eventList = new list();
+        this.group_eventList = listHead;
+        this.left = null;
+        this.right = null;
+    }
+
+    //updateCourseList（不理解）
+
+    //判断添加的课程是否与课程冲突,还要找到对应表里边的
+    isRepeat(node, courseBytime) {
+        let tempNode;
+        let current = this.courseList.head;
+        while (current) {
+            if ((tempNode = courseBytime.isExist(node.weekday - 1, current.data)) !== null) {
+                if ((tempNode.startTime <= node.startTime && tempNode.startTime + tempNode.duration >= node.startTime) || (node.startTime <= tempNode.startTime && node.startTime + node.duration >= tempNode.startTime)) {
+                    return true;
+                }
+            }
+            current = current.next;
         }
-    } else {
-        return { message: "invalid username" }
+        return false;
     }
-}
 
-function monitorLogin(userName, passWord, monitors, classTree) {
-    let monitor = monitors.searchById(userName);
-    if (staff) {
-        if (staff.password === passWord) {
-            let classNode = classTree.searchByIndex(monitor.classIndex);
+    getAllCourse(courseById) {
+        const courses = [];
+        let current = this.courseList.head.next;
+        while (current) {
+            let tempNode;
+            if ((tempNode = courseById.isExist(current.data)) !== null) {
+                let temp = Object.assign(new Course(), tempNode);
+                delete temp.next;
+                courses.push(temp);
+            }
+            current = current.next;
+        }
+        return courses;
+    }
 
+    getAllExam(examById) {
+        const exams = [];
+        let current = this.examList.head.next;
+        while (current) {
+            let tempNode;
+            if ((tempNode = examById.isExist(current.data)) !== null) {
+                let temp = Object.assign(new Exam(), tempNode);
+                delete temp.next;
+                exams.push(temp);
+            }
+            current = current.next;
+        }
+        return exams;
+    }
+
+    //需要判断时间是否项冲突了(相同课程会因为时间相同也被检测出来),需要把添加一整个结点改为只添加一个课程ID
+    addCourse(node, courseBytime) {
+        if (!this.isRepeat(node, courseBytime)) {
+            let newCourse = new Node();
+            newCourse.setdata(node.id);
+            this.courseList.addNode(newCourse);
+            try {
+                const data = fs.readFileSync('user.json')
+                const classInfos=data.toString()
+                let classInfo=JSON.parse(classInfos)
+                let theClass=classInfo.filter((c)=>{
+                    return c.userName===this.userName
+                })
+                if (theClass.length > 0) {
+                    theClass[0].courseList.push(node.id)
+                    const newStr=JSON.stringify(classInfo,null,2)
+                    fs.writeFileSync('user.json',newStr)
+                    console.log("成功添加");
+                }
+            } catch (e) {
+                console.log(e)
+            }
+        } else {
+            console.log("课程和原有课程时间重复啦！");
         }
     }
-}
 
-//最外边一个死循环，里边三个死循环，当选择退出时回到最外层死循环?
-function staffLogin(userName, passWord, staffs) {
-    let staff = staffs.searchById(userName);
-    if (staff) {
-        if (staff.password === passWord) {
+    addCourseFromFile(id) {
+        let tempNode = new Node(id);
+        this.courseList.addNode(tempNode);
+    }
 
+    addExamFromFile(id) {
+        let tempNode = new Node(id);
+        this.examList.addNode(tempNode);
+    }
+
+    addEventFromFile(node) {
+        this.courseList.addNode(node);
+    }
+
+    //添加事务,要改
+    addEvent(node, courseBytime, examById) {
+        if (!(this.isConflict(node, this.eventList) || this.isConflict(node, this.group_eventList))) {
+            //判断跟课程是否冲突
+            if (!(this.isConflictWithCourse(node, courseBytime) || this.isConflictWithExam(node, examById))) {
+                this.eventList.addNode(node);
+                try {
+                    const data = fs.readFileSync('user.json')
+                    const classInfos=data.toString()
+                    let classInfo=JSON.parse(classInfos)
+                    let theClass=classInfo.filter((c)=>{
+                        return c.userName===this.userName
+                    })
+                    if (theClass.length > 0) {
+                        theClass[0].eventList.push(node);
+                        const newStr=JSON.stringify(classInfo,null,2)
+                        fs.writeFileSync('user.json',newStr)
+                        console.log("成功添加");
+                    }
+                } catch (e) {
+                    console.log(e)
+                }
+                return null;
+            } else {
+                console.log("事件和已有课程或考试冲突了");
+                //console.log("可选择的时间为" + this.searchTime(node.start.getDate(), node.start.getDay(), node.duration));
+                return this.searchTime(node.start.getMonth(), node.start.getDate(), node.start.getDay(), node.duration, courseBytime, examById);
+            }
+        } else {
+            console.log("事件和已有事件冲突了");
+            return this.searchTime(node.start.getMonth(), node.start.getDate(), node.start.getDay(), node.duration, courseBytime, examById);
         }
     }
-}
 
-
-function init() {
-    courseByname.initHashTable();
-    courseBytime.initHashTable();
-    courseById.initHashTable();
-    examByName.initHashTable();
-    examById.initHashTable();
-}
-
-//创建新课程
-export function createCourse(name, weekday, startTime, duration, periodic, location) {
-
-    let course = new Course(maxCourseId++, name, weekday, startTime, duration, periodic, location);
-    const flag1 = courseByname.insert(course);
-    const flag2 = courseBytime.insert(course);
-    const flag3 = courseById.insert(course);
-    const finalFlag = flag1 && flag2 && flag3
-    return (finalFlag ? flag1 : null)
-}
-
-//新：创建新考试
-export function createExam(name, startTime, EndTime, location) {
-
-    let course = new Exam(maxExam++, name, startTime, EndTime, location);
-    const flag1 = examByName.insert(course);
-    const flag2 = examById.insert(course);
-    const finalFlag = flag1 && flag2;
-    return (finalFlag)
-}
-
-/*
-//各种修改课程或考试的信息
-function modifyCourseStartTime(weekday, name, id, time, courseByname, courseBytime) {
-    courseByname.modifyTime(name, id, time);
-    courseBytime.modifyTime(weekday, id, time);
-    courseById.modifyTime(id, time);
-}
-
-function modifyCourseLocation(weekday, name, id, location, courseByname, courseBytime) {
-    courseByname.modifyLocation(name, id, location);
-    courseBytime.modifyLocation(weekday, id, location);
-    courseById.modifyLocation(id, location);
-}
-
-function modifyCourseDuration(weekday, name, id, duration, courseByname, courseBytime) {
-    courseByname.modifyDuration(name, id, duration);
-    courseBytime.modifyDuration(weekday, id, duration);
-    courseById.modifyDuration(id, duration);
-}
-
-function modifyCourseWeekday(weekday, newWeekday, name, id, courseByname, courseBytime) {
-    courseByname.modifyWeekday(name, id, newWeekday);
-    courseBytime.modifyWeekday(weekday, id, newWeekday);
-    courseById.modifyWeekday(id, newWeekday);
-}
-
-function modifyExamStartTime(name, id, Start, examByname, examById) {
-    examByname.modifyStartTime(name, id, Start);
-    examById.modifyStartTime(id, Start);
-}
-
-function modifyExamEndTime(name, id, End, examByname,) {
-    examByname.modifyEndTime(name, id, End);
-    examById.modifyEndTime(id, Start);
-}
-
-function modifyExamLocation(name, id, location, examByname) {
-    examByname.modifyLocation(name, id, location);
-    examById.modifyLocation(id, location);
-}*/
-
-export function modifyCourseEverything(time, location, duration, newWeekday, name, weekday, id) {
-    console.log(courseByname.arr[7]);
-    courseByname.modifyTime(name, id, time);
-    courseBytime.modifyTime(weekday, id, time);
-    courseById.modifyTime(id, time);
-    courseByname.modifyLocation(name, id, location);
-    courseBytime.modifyLocation(weekday, id, location);
-    courseById.modifyLocation(id, location);
-    courseByname.modifyDuration(name, id, duration);
-    courseBytime.modifyDuration(weekday, id, duration);
-    courseById.modifyDuration(id, duration);
-    courseByname.modifyWeekday(name, id, newWeekday);
-    courseBytime.modifyWeekday(weekday, id, newWeekday);
-    courseById.modifyWeekday(id, newWeekday);
-    let data = loadJSON('course.json');
-    for(let i = 0 ;i<data.length;i++){
-        if(data[i].id===id){
-            data[i].location = location;
-            data[i].startTime = time;
-            data[i].duration = duration;
-            data[i].weekday = newWeekday;
+    //草泥马我就要排考试
+    addExam(node, examById) {
+        if (!this.isRepeatWithExam(node, examById)) {
+            let newExam = new Node();
+            newExam.setdata(node.id);
+            this.examList.addNode(newExam);
+            try {
+                const data = fs.readFileSync('user.json')
+                const classInfos=data.toString()
+                let classInfo=JSON.parse(classInfos)
+                let theClass=classInfo.filter((c)=>{
+                    return c.userName===this.userName
+                })
+                if (theClass.length > 0) {
+                    theClass[0].examList.push(node.id);
+                    const newStr=JSON.stringify(classInfo,null,2)
+                    fs.writeFileSync('user.json',newStr)
+                    console.log("成功添加");
+                }
+            } catch (e) {
+                console.log(e)
+            }
+        } else {
+            console.log("考试和已有考试时间重复啦！");
         }
     }
-    addToJSON('course.json',data);
-}
 
-export function modifyExamEverything(startTime, endTime, location, id, name) {
-    examByName.modifyStartTime(name, id, startTime);
-    examByName.modifyEndTime(name, id, endTime);
-    examByName.modifyLocation(name, id, location);
-    examById.modifyStartTime(id, startTime);
-    examById.modifyEndTime( id, endTime);
-    examById.modifyLocation( id, location);
-    let data = loadJSON('exam.json');
-    for(let i = 0 ;i<data.length;i++){
-        if(data[i].id===id){
-            data[i].startTime = startTime;
-            data[i].endTime = endTime;
-            data[i].location = location;
+    //判断添加的考试是否与考试冲突,还要找到对应表里边的
+    isRepeatWithExam(node, examById) {
+        let tempNode;
+        let i = this.examList.head;
+        let current = this.examList.head.next;
+        while (current) {
+            if ((tempNode = examById.isExist(current.data)) !== null) {
+                if (tempNode.start.getMonth() === node.start.getMonth() && tempNode.start.getDate() === node.start.getDate()) {
+                    if ((tempNode.start.getHours() <= node.start.getHours() && tempNode.end.getHours() >= node.start.getHours()) || (node.start.getHours() <= tempNode.start.getHours() && node.end.getHours() >= tempNode.start.getHours())) {
+                        return true;
+                    }
+                }
+            }
+            current = current.next;
         }
+        return false;
     }
-    addToJSON('exam.json',data);
-}
 
-//学生注册
-export function addStudent(username, password, Name, classnumber, stuTree, classTree) {
-    classTree.addClass(classnumber, username);
-    let user = new userNode(username, password, Name, classnumber, classTree.getClassEvent(classnumber));
-    stuTree.insertNode(user);
-    let newUser = Object.assign(new userNode(),user);
-    delete newUser.left;
-    delete newUser.right;
-    delete newUser.eventList;
-    delete newUser.courseList;
-    newUser.eventList = [];
-    newUser.examList = [];
-    newUser.courseList = [];
-    let data = loadJSON('user.json');
-    data.push(newUser);
-    addToJSON('user.json',data);
-}
-
-//管理员给学生排课
-function stuAddCourse(courseId, username, stuTree,courseBytime,courseById) {
-    let student = stuTree.searchById(username);
-    let course = courseById.isExist(courseId);
-    if (student&&course) {
-        student.addCourse(course,courseBytime);
-        //let data = loadJSON('user.json');
+    getEventById(ID) {
+        let current = this.eventList.head.next;
+        while (current) {
+            if (current.id === ID) {
+                return current;
+            }
+            current = current.next;
+        }
+        return null;
     }
-}
 
-function stuAddExam(examId, username, stuTree,examById) {
-    let student = stuTree.searchById(username);
-    let exam = examById.isExist(examId);
-    if (student&&exam) {
-        student.addExam(exam,examById);
-        //let data = loadJSON('user.json');
+    getPreEventById(ID) {
+        let previous = this.eventList.head;
+        while (previous) {
+            if (previous.next.id === ID) {
+                return previous;
+            }
+            previous = previous.next;
+        }
+        return null;
     }
-}
-//学生添加个人事件，带判断那种，就是有冲突会反馈给你三个时间点
-export function stuAddEvent(name, startTime, duration, reType, online, location, group, platform, website, username) {
-    const studentNode=stuTree.searchById(username)
-    let event = new Event(name, startTime, duration, reType, online, location, group, platform, website);
-    if (studentNode.addEvent(event,courseBytime,examById)) {
+
+    //新增
+    eventDelete(ID) {
+        let previous = this.getPreEventById(ID);
+        let current = this.getEventById(ID);
+        previous.next = current.next;
+        current.next = null;
+    }
+
+    getAllCorseID() {
+        let current;
+        const coursesId = [];
+        current = this.courseList.head.next;
+        while (current) {
+            coursesId.push(current.data);
+            current = current.next;
+        }
+        return coursesId;
+    }
+
+    getAllExamID() {
+        let current;
+        const examsId = [];
+        current = this.examList.head.next;
+        while (current) {
+            examsId.push(current.data);
+            current = current.next;
+        }
+        return examsId;
+    }
+
+    getAllEvent() {
+        const events = [];
+        let event = this.eventList.head.next;
+        let groupEvent = this.group_eventList.head.next;
+        while (event) {
+            let temp = Object.assign(new Event(), event);
+            delete temp.next;
+            events.push(temp);
+            event = event.next;
+        }
+        while (groupEvent) {
+            let temp = Object.assign(new Event(), groupEvent);
+            delete temp.next;
+            events.push(temp);
+            groupEvent = groupEvent.next;
+        }
+        return events;
+    }
+
+    modifyEvent(id, name, startTime, duration, reType, online, location, group, platform, website) {
+        let event = this.getEventById(id);
+        event.name = name;
+        event.start = new Date(startTime);
+        event.duration = duration;
+        event.reType = reType;
+        event.online = online;
+        event.location = location;
+        event.group = group;
+        event.platform = platform;
+        event.website = website;
+    }
+
+    //查找第二天的课程,传入是时间课程哈希表和第二天的周几？(正常的周几就行)
+    //返回值是课程节点数组
+    findDay_2nd(courseBytime, weekday) {
+        let i = 0;
+        let courseArray = new Array(12);
+        let current = this.courseList.head;
+        while (current) {
+            let tempNode;
+            if (tempNode === courseBytime.isExist(weekday - 1, current.data)) {
+                courseArray[i] = tempNode;
+                i++;
+            }
+            current = current.next;
+        }
+        return courseArray;
+    }
+
+    //判断event是否与已有事件冲突,待更改eventlist和groupEvent想用同款方法就需要类型相同
+    isConflict(node, eventList) {
+        let current = eventList.head.next;
+        while (current) {
+            if (current.reType == 0) {
+                if (current.start.getMonth() === node.start.getMonth() && current.start.getDate() === node.start.getDate()) {
+                    if ((current.start.getHours() <= node.start.getHours() && current.start.getHours() + current.duration >= node.start.getHours()) || (node.start.getHours() <= current.start.getHours() && node.start.getHours() + node.duration >= current.start.getHours
+                        ())) {
+                        return true;
+                    }
+                }
+            } else if (current.reType == 1) {
+                if ((current.start.getHours() <= node.start.getHours() && current.start.getHours() + current.duration >= node.start.getHours()) || (node.start.getHours() <= current.start.getHours() && node.start.getHours() + node.duration >= current.start.getHours
+                    ())) {
+                    return true;
+                }
+            } else if (current.reType == 2) {
+                if (current.start.getDay() === node.start.getDay()) {
+                    if ((current.start.getHours() <= node.start.getHours() && current.start.getHours() + current.duration >= node.start.getHours()) || (node.start.getHours() <= current.start.getHours() && node.start.getHours() + node.duration >= current.start.getHours
+                        ())) {
+                        return true;
+                    }
+                }
+            }
+            current = current.next;
+        }
+        return false;
+    }
+
+    //判断event是否与课程冲突,待确认
+    isConflictWithCourse(node, courseBytime) {
+        let transWeekday;
+        if (node.start.getDay() === 0) {
+            transWeekday = 6;
+        } else {
+            transWeekday = node.start.getDay() - 1;
+        }
+        let tempNode;
+        let current = this.courseList.head;
+        while (current) {
+            if (tempNode === courseBytime.isExist(transWeekday, current.data)) {
+                //console.log(tempNode);
+                if ((tempNode.startTime <= node.start.getHours() && tempNode.startTime + tempNode.duration >= node.start.getHours()) || (node.start.getHours() <= tempNode.startTime && node.start.getHours() + node.duration >= tempNode.startTime
+                )) {
+                    return true;
+                }
+            }
+            current = current.next;
+        }
+        return false;
+    }
+
+
+    //判断event是否与考试冲突,待确认
+    isConflictWithExam(node, examById) {
+        let tempNode;
+        let current = this.examList.head.next;
+        while (current) {
+            if (tempNode === examById.isExist(current.data)) {
+                //console.log(tempNode);
+                if (node.start.getMonth() === tempNode.start.getMonth() && node.start.getDate() === tempNode.start.getDate()) {
+                    if ((tempNode.start.getHours() <= node.start.getHours() && tempNode.end.getHours() >= node.start.getHours()) || (node.start.getHours() <= tempNode.start.getHours() && node.start.getHours() + node.duration >= tempNode.start.getHours()
+                    )) {
+                        return true;
+                    }
+                }
+            }
+            current = current.next;
+        }
+        return false;
+    }
+
+
+    //判断备选时间是否与已有事件冲突
+    isNotAvailableForEvent(month, date, weekday, startTime, duration) {
+        let current = this.eventList.head.next;
+        while (current) {
+            if (current.reType == 0) {
+                if (current.start.getMonth() === month && current.start.getDate() === date) {
+                    if ((current.start.getHours() <= startTime && current.start.getHours() + current.duration >= startTime) || (startTime <= current.start.getHours() && startTime + duration >= current.start.getHours
+                        ())) {
+                        return true;
+                    }
+                }
+            } else if (current.reType == 1) {
+                if ((current.start.getHours() <= startTime && current.start.getHours() + current.duration >= startTime) || (startTime <= current.start.getHours() && startTime + duration >= current.start.getHours
+                    ())) {
+                    return true;
+                }
+            } else if (current.reType == 2) {
+                if (current.start.getDay() === weekday) {
+                    if ((current.start.getHours() <= startTime && current.start.getHours() + current.duration >= startTime) || (startTime <= current.start.getHours() && startTime + duration >= current.start.getHours
+                        ())) {
+                        return true;
+                    }
+                }
+            }
+            current = current.next;
+        }
+        return false;
+    }
+
+    //判断备选时间是否与已有班级事件冲突
+    isNotAvailableForGroupevent(month, date, weekday, startTime, duration) {
+        let current = this.group_eventList.head.next;
+        while (current) {
+            if (current.reType == 0) {
+                if (current.start.getMonth() === month && current.start.getDate() === date) {
+                    if ((current.start.getHours() <= startTime && current.start.getHours() + current.duration >= startTime) || (startTime <= current.start.getHours() && startTime + duration >= current.start.getHours
+                        ())) {
+                        return true;
+                    }
+                }
+            } else if (current.reType == 1) {
+                if ((current.start.getHours() <= startTime && current.start.getHours() + current.duration >= startTime) || (startTime <= current.start.getHours() && startTime + duration >= current.start.getHours
+                    ())) {
+                    return true;
+                }
+            } else if (current.reType == 2) {
+                if (current.start.getDay() === weekday) {
+                    if ((current.start.getHours() <= startTime && current.start.getHours() + current.duration >= startTime) || (startTime <= current.start.getHours() && startTime + duration >= current.start.getHours
+                        ())) {
+                        return true;
+                    }
+                }
+            }
+            current = current.next;
+        }
+        return false;
+    }
+
+    //判断备选时间是否与课程冲突
+    isNotAvailableForCourse(weekday, startTime, duration, courseBytime) {
+        let tempNode;
+        let current = this.courseList.head.next;
+        while (current) {
+            if (tempNode = courseBytime.isExist(weekday, current.data)) {
+                if ((tempNode.startTime <= startTime && tempNode.startTime + tempNode.duration >= startTime) || (startTime <= tempNode.startTime && startTime + duration >= tempNode.startTime)) {
+                    return true;
+                }
+            }
+            current = current.next;
+        }
+        return false;
+    }
+
+    //判断备选时间是否与已有考试冲突
+    isNotAvailableForExam(month, date, startTime, duration, examById) {
+        let tempNode;
+        let current = this.examList.head.next;
+        while (current) {
+            if (tempNode = examById.isExist(current.data)) {
+                if (tempNode.start.getMonth() === month && tempNode.start.getDate() === date) {
+                    if ((tempNode.start.getHours() <= startTime && tempNode.end.getHours() >= startTime) || (startTime <= tempNode.start.getHours() && startTime + duration >= tempNode.end.getHours())) {
+                        return true;
+                    }
+                }
+            }
+            current = current.next;
+        }
+        return false;
+    }
+
+    //为个人活动寻找时间,有问题还得改
+    searchTime(month, date, weekday, duration, courseBytime, examById) {
+        let transWeekday;
+        if (weekday === 0) {
+            transWeekday = 6;
+        } else {
+            transWeekday = weekday - 1;
+        }
         let available = new Array(3);
-        available = studentNode.addEvent(event,courseBytime,examById);
-        console.log(available);
-        return available
-    } else {   //前边如果没问题会添加的，不用再单列这个情况了
-        return null
-    }
-}
-
-//学生调用查找第二天课程
-function findDay2nd(studentNode, courseBytime, weekday) {
-    let courseArray = new Array(12);
-    courseArray = studentNode.findDay_2nd(courseBytime.arr[weekday]);
-    return courseArray;
-}
-
-//班长添加集体事件，第一次加，如果有冲突会返回有冲突的时间
-function addClassEvent(name, startTime, duration, reType, online, location, group, platform, website, classIndex) {
-    let availableTime = new Array(3);
-    let event = new Event(name, startTime, duration, reType, online, location, group, platform, website);
-    let classNode = classTree.searchByIndex(classIndex);
-    if ((availableTime = classNode.addClassEvent(event, stuTree)) !== null) {
-        let availableTime = new Array(3);
-        console.log(availableTime);
-    }
-}
-
-function addClassNumber(){
-
-}
-
-//添加集体事件，找到冲突最少时间后调用
-function stuAddEventDirect(name, startTime, duration, reType, online, location, group, platform, website, classNode, stuTree) {
-    let event = new Event(name, startTime, duration, reType, online, location, group, platform, website);
-    classNode.addClassEvent(event, stuTree);
-}
-
-//添加管理员
-function addStaff(username, password, Name, staffs) {
-    let staff = new staffNode(username, password, Name);
-    staffs.addStaff(staff);
-    addToJSON('staff.json',staff);
-}
-
-
-//拿到全校的课
-export function getAllCourse() {
-    let current;
-    const courses = [];
-    for (let i = 0; i < 7; i++) {
-        current = courseBytime.arr[i].head.next;
-        while (current) {
-            let temp = Object.assign(new Course(), current);
-            delete temp.next;
-            courses.push(temp);
-            current = current.next;
+        let arr = new Array(16);
+        let index = new Array(16);
+        for (let i = 0; i < 16; i++) {
+            arr[i] = 0;
+            index[i] = i;
         }
-    }
-    return courses;
-}
-export function getAllCoursesR() {
-    return getAllCourse(courseBytime)
-}
-
-
-//新：拿到全校的考试
-export function getAllExamForAdmin() {
-    let current;
-    const exams = [];
-    for (let i = 0; i < 13; i++) {
-        current = examById.arr[i].head.next;
-        while (current) {
-            let temp = Object.assign(new Exam(), current);
-            delete temp.next;
-            exams.push(temp);
-            current = current.next;
+        //找到指定班级
+        //遍历8点到20点判断时间点是否空闲
+        for (let i = 6; i < 22; i++) {
+            if (this.isNotAvailableForGroupevent(month, date, weekday, i, duration) || this.isNotAvailableForEvent(month, date, weekday, i, duration) || this.isNotAvailableForCourse(transWeekday, i, duration, courseBytime) || this.isNotAvailableForExam(month, date, i, duration, examById)) {
+                arr[i - 6] = -1;
+            }
         }
-    }
-    return exams;
-}
 
-//拿到个人的课
-export function getAllCourseForPerson(userName) {
-    const student = stuTree.searchById(userName);
-    return student.getAllCourse() || []
-}
-export function getAllCourseForOneMan() {
-    return getAllEventForPerson()
-}
-
-//新：拿到个人的考试
-export function getAllExamForStudent(userName) {
-    const student = stuTree.searchById(userName);
-    return student.getAllExam() || []
-}
-
-
-//拿到自己的所有活动
-export function getAllEventForPerson(userName) {
-    let courses = [];
-    let student = stuTree.searchById(userName);
-    courses = student.getAllEvent();
-    return courses
-}
-
-//修改个人活动
-function alterEventByPerson(userName, id, name, startTime, duration, reType, online, location, group, platform, website) {
-    let student = stuTree.searchById(userName);
-    student.modifyEvent(id, name, startTime, duration, reType, online, location, group, platform, website);
-}
-
-//也就是修改集体事件
-function alterEventByMonitor(classIndex, id, name, startTime, duration, reType, online, location, group, platform, website) {
-    let Class = classTree.searchById(userName);
-    Class.modifyEvent(id, name, startTime, duration, reType, online, location, group, platform, website);
-}
-
-//得到所有学生
-function getAllStudents(stuTree) {
-    let students = [];
-    students = stuTree.preOrderTraversal();
-}
-
-//删除活动
-export function deletePersonEvent(userName, ID) {
-    let student = stuTree.searchById(userName);
-    student.eventDelete(ID);
-}
-
-export function deleteGroupEvent(classIndex, ID) {
-    let Class = classTree.searchById(classIndex);
-    Class.eventDelete(ID);
-}
-
-let stuTree = null;
-let classTree = null;
-let courseByname = null;
-let examByName = null
-let courseBytime = null;
-let courseById = null
-let examById = null;
-let staffs = null;
-
-export function mainInit() {
-    courseByname = new CourseTableByname();
-    courseBytime = new CourseTableBytime();
-    examByName = new ExamTableByname();
-    courseById = new CourseTableById();
-    examById = new ExamTableById();
-    classTree = new ClassAVLTree();
-    stuTree = new StuAVLTree();
-    staffs = new staffList();
-    init();
-}
-
-export function insertUserCourse(userName, courseId, courseName) {
-    const student = stuTree.searchById(userName);
-    const course = courseByname.searchById(courseId, courseName)
-    student.addCourse(course, courseBytime)
-
-}
-
-export function loadJSON(filename) {
-    const data = fs.readFileSync(filename, 'utf8');
-    return JSON.parse(data);
-}
-
-// 写入JSON文件
-export function saveJSON(filename, data){
-    const jsonData = JSON.stringify(data, null, 2);
-    fs.writeFileSync(filename, jsonData, 'utf8');
-}
-
-
-export function addToJSON(filename,data){
-    //const Data= loadJSON(filename);
-    //Data.files.push(data);
-    saveJSON(filename, data);
-}
-
-function modifyEventByPerson(userName, id, name, start, duration, reType, online, location, group, platform, website) {
-    let data = loadJSON('user.json');
-    for(let i =0;i<data.length;i++){
-        if(data[i].userName===userName){
-            for(let j = 0;j<data[i].eventList.length;j++){
-                if(data[i].eventList[j].id === id){
-                    data[i].eventList[j].name =name;
-                    data[i].eventList[j].start =start;
-                    data[i].eventList[j].duration =duration;
-                    data[i].eventList[j].reType =reType;
-                    data[i].eventList[j].online =online;
-                    data[i].eventList[j].location =location;
-                    data[i].eventList[j].group =group;
-                    data[i].eventList[j].platform =platform;
-                    data[i].eventList[j].website =website;
+        for (let i = 0; i < 11; i++) {
+            for (let j = 0; j < 11 - i; j++) {
+                // 从小到大的冒泡排序
+                if (arr[j] > arr[j + 1]) {
+                    let temp = arr[j];
+                    arr[j] = arr[j + 1];
+                    arr[j + 1] = temp;
+                    let tempIndex = index[j];
+                    index[j] = index[j + 1];
+                    index[j + 1] = tempIndex;
                 }
             }
         }
+
+        for (let i = 0, j = 0; i < 3 && j < 12; i++) {
+            while (arr[j] === -1) {
+                j++;
+            }
+            available[i] = index[j] + 6;
+            j++;
+        }
+        return available;
     }
-    addToJSON('user.json',data);
 }
-//修改
-function modifyEventByClass(classIndex, id, name, start, duration, reType, online, location, group, platform, website) {
-    let data = loadJSON('class.json');
-    for(let i =0;i<data.length;i++){
-        if(data[i].classIndex===classIndex){
-            for(let j = 0;j<data[i].event.length;j++){
-                if(data[i].event[j].id === id){
-                    data[i].event[j].name =name;
-                    data[i].event[j].start =start;
-                    data[i].event[j].duration =duration;
-                    data[i].event[j].reType =reType;
-                    data[i].event[j].online =online;
-                    data[i].event[j].location =location;
-                    data[i].event[j].group =group;
-                    data[i].event[j].platform =platform;
-                    data[i].event[j].website =website;
+
+
+//待完成：写一个获得冲突最少时间后强制写入，无需做任何判断
+class ClassNode {
+    constructor(classindex) {
+        this.classIndex = classindex;
+        this.classMember = 0;
+        this.left = null;
+        this.right = null;
+        this.classNumber = new Array(45);   //班内学生学号数组存储
+        this.classEventList = new list();
+
+    }
+
+    //新：记得昨天改过，但是你给我的不是最新的
+    addNumber(userName) {
+        let pos = -1;
+        let repeat = -1;
+        for (let i = 0; i < 45; i++) {
+            if (this.classNumber[i] === userName) {
+                repeat = 1;
+                break;
+            }
+            if (this.classNumber[i] == null) {
+                pos = i;
+                break;
+            }
+        }
+        if (repeat === 1) {
+        } else if (pos !== -1) {        // 如果 pos != -1 说明有空位，否则没有位置添加新学生
+            this.classNumber[pos] = userName;
+            this.classMember = this.classMember + 1;
+            try {
+                const data = fs.readFileSync('class.json')
+                const classInfos=data.toString()
+                let classInfo=JSON.parse(classInfos)
+                let theClass=classInfo.filter((c)=>{
+                    return c.classIndex===this.classIndex
+                })
+                if (theClass.length > 0) {
+                    //console.log(theClass)
+                    theClass[0].classMember++;
+                    //console.log(theClass[0].classMember);
+                    theClass[0].classNumber.push(userName)
+                    // console.log(theClass[0].classNumber);
+                    const newStr=JSON.stringify(classInfo,null,2)
+                    //console.log(newStr);
+                    fs.writeFileSync('class.json',newStr)
+                    console.log("成功添加");
+                }
+            } catch (e) {
+                console.log(e)
+            }
+        } else {
+            console.log("这个班满人了");
+        }
+    }
+
+    addEventDirectly(node) {
+        this.classEventList.addNode(node);
+        try {
+            const data = fs.readFileSync('class.json')
+            const classInfos = data.toString()
+            let classInfo = JSON.parse(classInfos)
+            let theClass = classInfo.filter((c) => {
+                return c.classIndex === this.classIndex
+            })
+            if (theClass.length > 0) {
+                theClass[0].classNumber.push(node);
+                const newStr = JSON.stringify(classInfo, null, 2)
+                fs.writeFileSync('class.json', newStr)
+                console.log("成功添加");
+            }
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
+    addClassMemberFromFile(userId) {
+        this.addNumber(userId);
+    }
+
+    addClassEventFromFile(node) {
+        this.classEventList.addNode(node);
+    }
+
+    getEventById(ID) {
+        let current = this.eventList.head.next;
+        while (current) {
+            if (current.id === ID) {
+                return current;
+            }
+            current = current.next;
+        }
+        return null;
+    }
+
+    getPreEventById(ID) {
+        let previous = this.eventList.head;
+        while (previous) {
+            if (previous.next.id === ID) {
+                return previous;
+            }
+            previous = previous.next;
+        }
+        return null;
+    }
+
+    //新增
+    eventDelete(ID) {
+        let previous = this.getPreEventById(ID);
+        let current = this.getEventById(ID);
+        previous.next = current.next;
+        current.next = null;
+    }
+
+    modifyEvent(id, name, startTime, duration, reType, online, location, group, platform, website) {
+        let event = this.getEventById(id);
+        event.name = name;
+        event.start = new Date(startTime);
+        event.duration = duration;
+        event.reType = reType;
+        event.online = online;
+        event.location = location;
+        event.group = group;
+        event.platform = platform;
+        event.website = website;
+    }
+
+    //判断班级事务与已有班级事务，个人事务，个人课程,个人考试是否重复
+    //已完成：与个人冲突应该普查完所有人而不是查冲突的那一个人，就是searchTime要改嘛改成遍历整个班和班级事务
+    addClassEvent(node, userTree, courseBytime, examById) {
+        if (!this.isConflictWithGroup(node)) {
+            for (let i = 0; i < this.classMember; i++) {
+                let current = userTree.searchById(this.classNumber[i]);
+                if (current.isConflict(node, current.eventList) || current.isConflictWithCourse(node, courseBytime) || current.isConflictWithExam(node, examById)) {
+                    //集体和个人可以找冲突少的
+                    console.log("事件与班级个人冲突了");
+                    let availableTime = new Array(3);
+                    availableTime = this.searchTime(node.start.getMonth(), node.start.getDate(), node.start.getDay() + 1, node.duration, userTree, courseBytime, examById);
+                    return availableTime;
+                }
+            }
+            this.classEventList.addNode(node);
+            fs.readFile('class.json',(err, data)=>{
+                if(err) {
+                    console.log(err)
+                } else {
+                    const classInfos=data.toString()
+                    let classInfo=JSON.parse(classInfos)
+                    console.log(this.classIndex)
+                    let theClass=classInfo.filter((c)=>{
+                        return c.classIndex===this.classIndex
+                    })
+                    if (theClass.length > 0) {
+                        theClass[0].event.push(node);
+                        const newStr=JSON.stringify(classInfo,null,2)
+                        fs.writeFileSync('class.json',newStr)
+                        console.log("成功添加");
+                    } else {
+                        console.log("未找到");
+                    }
+                }
+            })
+
+            return null;
+        } else {
+            console.log("事件与集体事件冲突了");
+            //待实现：提供可行时间，集体和集体是绝对不能冲突吧
+            let availableTime = new Array(3);
+            //待改进：这里第二个参数是错的
+            availableTime = this.searchTime(node.start.getMonth(), node.start.getDate(), node.start.getDay() + 1, node.duration, userTree, courseBytime, examById);
+            return availableTime;
+        }
+    }
+
+    //是否与本班事务冲突
+    isConflictWithGroup(node) {
+        let current = this.classEventList.head.next;
+        while (current) {
+            //存疑，事务类的数据是否有更好的时间匹配方式
+            if (current.reType == 0) {
+                if (current.start.getMonth() === node.start.getMonth() && current.start.getDate() === node.start.getDate()) {
+                    if ((current.start.getHours() <= node.start.getHours() && current.start.getHours() + current.duration >= node.start.getHours()) || (node.start.getHours() <= current.start.getHours() && node.start.getHours() + node.duration >= current.start.getHours
+                        ())) {
+                        return true;
+                    }
+                }
+            } else if (current.reType == 1) {
+                if ((current.start.getHours() <= node.start.getHours() && current.start.getHours() + current.duration >= node.start.getHours()) || (node.start.getHours() <= current.start.getHours() && node.start.getHours() + node.duration >= current.start.getHours
+                    ())) {
+                    return true;
+                }
+            } else if (current.reType == 2) {
+                if (current.start.getDay() === node.start.getDay()) {
+                    if ((current.start.getHours() <= node.start.getHours() && current.start.getHours() + current.duration >= node.start.getHours()) || (node.start.getHours() <= current.start.getHours() && node.start.getHours() + node.duration >= current.start.getHours
+                        ())) {
+                        return true;
+                    }
+                }
+            }
+            current = current.next;
+        }
+        return false;
+    }
+
+    searchTime(month, date, weekday, duration, userTree, courseBytime, examById) {
+        let transWeekday;
+        if (weekday === 0) {
+            transWeekday = 6;
+        } else {
+            transWeekday = weekday - 1;
+        }
+        let available = new Array(3);
+        let arr = new Array(16);
+        let index = new Array(16);
+        for (let i = 0; i < 16; i++) {
+            arr[i] = 0;
+            index[i] = i;
+        }
+        //遍历8点到20点判断时间点是否空闲
+        for (let i = 6; i < 22; i++) {
+            //如果跟班级事务冲突了，那绝对没戏了
+            if (this.isNotAvailableInClass(month, date, weekday, duration, i)) {
+                arr[i - 6] = -1;
+            } else {
+                for (let j = 0; j < this.classMember; j++) {
+                    let current = userTree.searchById(this.classNumber[j]);
+                    if (current.isNotAvailableForEvent(month, date, weekday, i, duration) || current.isNotAvailableForCourse(transWeekday, i, duration, courseBytime) || current.isNotAvailableForExam(month, date, i, duration, examById)) {
+                        arr[i - 6] = arr[i - 6] + 1;
+                    } /*else {                       这里用不用都可以，不用的话就相当于统计跟这个时间不冲突的学生数
+                        arr[i - 6] = arr[i - 6] - 1;
+                }*/
                 }
             }
         }
-    }
-    addToJSON('class.json',data);
-}
 
-export function addCourse(name, weekday, startTime, duration, periodic, location, courseByname, courseBytime) {
-    let course = new Course(maxCourseId++, name, weekday, startTime, duration, periodic, location);
-    //courseByname.insert(course);
-    //courseBytime.insert(course);
-    let data = loadJSON('course.json');
-    data.push(course);
-    addToJSON('course.json',data);
-}
-export function addExam(id,name,startTime,endTime,location){
-    let exam = new Exam( id,name,startTime,endTime,location);
-    //courseByname.insert(course);
-    //courseBytime.insert(course);
-    let data = loadJSON('exam.json');
-    data.push(exam);
-    addToJSON('exam.json',data);
-}
-
-export function addClass(classindex){
-    let newNode = new ClassNode(classindex);
-    delete newNode.left;
-    delete newNode.right;
-    delete newNode.classEventList
-    newNode.classNumber = [];
-    newNode.event = [];
-    let data = loadJSON('class.json');
-    //let NewNode = [];
-    //NewNode.push(newNode);
-    data.push(newNode);
-    addToJSON('class.json',data);
-}
-
-export function addUser(username, password, Name, classnumber, listHead){
-    let user = new userNode(username, password, Name, classnumber, listHead);
-    delete user.left;
-    delete user.right;
-    delete user.eventList;
-    delete user.courseList;
-    user.eventList = [];
-    user.examList = [];
-    user.courseList = [];
-    let data = loadJSON('user.json');
-    data.push(user);
-    addToJSON('user.json',data);
-    return user;
-}
-export function creatClassAVLtree(){
-    let Data = loadJSON('class.json');
-    for(let i =0;i<Data.length;i++){
-        let Class = new ClassNode(Data[i].classIndex);
-        for(let j=0;j<Data[i].classNumber.length;j++) {
-            Class.addClassMemberFromFile(Data[i].classNumber[j]);
+        for (let i = 0; i < 11; i++) {
+            for (let j = 0; j < 11 - i; j++) {
+                // 从小到大的冒泡排序
+                if (arr[j] > arr[j + 1]) {
+                    let temp = arr[j];
+                    arr[j] = arr[j + 1];
+                    arr[j + 1] = temp;
+                    let tempIndex = index[j];
+                    index[j] = index[j + 1];
+                    index[j + 1] = tempIndex;
+                }
+            }
         }
-        for(let j=0;j<Data[i].event.length;j++) {
-            Class.addClassEventFromFile(Data[i].event[j]);
+
+        for (let i = 0, j = 0; i < 3 && j < 12; i++) {
+            while (arr[j] === -1) {
+                j++;
+            }
+            available[i] = index[j] + 6;
+            j++;
         }
-        //console.log(Class);
-        classTree.insertNode(Class);
+        return available;
     }
-}
 
-export function creatUserAVLTree(){
-    let data = loadJSON('user.json');
-    for(let i = 0;i<data.length;i++){
-        let User = new userNode(data[i].userName,data[i].passWord,data[i].name,data[i].classNumber,classTree.searchByIndex(data[i].classNumber).classEventList);
-        for(let j =0;j<data[i].courseList.length;j++){
-            User.addCourseFromFile(data[i].courseList[j]);
+    isNotAvailableInClass(month, date, weekday, duration, startTime) {
+        let current = this.classEventList.head.next;
+        while (current) {
+            if (current.reType == 0) {
+                if (current.start.getMonth() === month && current.start.getDate() === date) {
+                    if ((current.start.getHours() <= startTime && current.start.getHours() + current.duration >= startTime) || (startTime <= current.start.getHours() && startTime + duration >= current.start.getHours
+                        ())) {
+                        return true;
+                    }
+                }
+            } else if (current.reType == 1) {
+                if ((current.start.getHours() <= startTime && current.start.getHours() + current.duration >= startTime) || (startTime <= current.start.getHours() && startTime + duration >= current.start.getHours
+                    ())) {
+                    return true;
+                }
+            } else if (current.reType == 2) {
+                if (current.start.getDay() === weekday) {
+                    if ((current.start.getHours() <= startTime && current.start.getHours() + current.duration >= startTime) || (startTime <= current.start.getHours() && startTime + duration >= current.start.getHours
+                        ())) {
+                        return true;
+                    }
+                }
+            }
+            current = current.next;
         }
-        for(let j =0;j<data[i].eventList.length;j++){
-            User.addEventFromFile(data[i].eventList[j]);
+        return false;
+    }
+}
+
+
+class staffNode {
+    constructor(username, passWord, Name) {
+        this.userName = username;
+        this.password = passWord;
+        this.name = Name;
+        this.next = null;
+    }
+}
+
+class staffList extends list {
+    constructor() {
+        super();
+    }
+
+    isRepeat(node) {
+        let current = this.head;
+        while (current) {
+            if (node.userName === current.userName) {
+                return true;
+            }
+            current = current.next;
         }
-        stuTree.insertNode(User);
+        return false;
+    }
+
+    addStaff(node) {
+        if (this.isRepeat(node)) {
+            console.log("管理员账号重复了");
+        } else {
+            this.addNode(node);
+            delete node.next;
+            let data = loadJSON('staff.json');
+            data.push(node);
+            addToJSON('staff.json',data);
+        }
+    }
+
+    searchById(userName) {
+        let current = this.head;
+        while (current) {
+            if (current.userName === userName) {
+                return current;
+            }
+            current = current.next;
+        }
+        return null;
     }
 }
 
-function creatCourseHash(){
-    let Data = loadJSON('course.json');
-    for(let i =0 ;i < Data.length;i++){
-        let course = new Course(Data[i].id,Data[i].name,Data[i].weekday,Data[i].startTime,Data[i].duration,Data[i].periodic,Data[i].location);
-        courseBytime.insert(course);
-        courseByname.insert(course);
-        courseById.insert(course);
+
+class monitorNode {
+    constructor(username, passWord, classindex, Name) {
+        this.userName = username;
+        this.password = passWord;
+        this.classIndex = classindex;
+        this.name = Name;
+        this.next = null;
     }
 }
 
-function creatExamHash(){
-    let data = loadJSON('exam.json');
-    for(let i =0 ;i < data.length;i++){
-        let exam = new Exam(data[i].id,data[i].name,data[i].startTime,data[i].endTime,data[i].location);
-        examByName.insert(exam);
-        examById.insert(exam);
+class monitorList extends list {
+    constructor() {
+        super();
+    }
+
+    isRepeat(node) {
+        let current = this.head;
+        while (current) {
+            if (node.userName === current.userName) {
+                return true;
+            }
+            current = current.next;
+        }
+        return false;
+    }
+
+    addMonitor(node) {
+        if (this.isRepeat(node)) {
+            console.log("班级管理员账号重复了");
+        } else {
+            this.addNode(node);
+            delete node.next;
+            let data = loadJSON('monitor.json');
+            data.push(node);
+            addToJSON('monitor.json', data);
+        }
+    }
+
+    searchById(userName) {
+        let current = this.head;
+        while (current) {
+            if (current.userName === userName) {
+                return current;
+            }
+            current = current.next;
+        }
+        return null;
+    }
+
+}
+
+
+
+
+//插入学生结点时顺便检索是否有这个班级，没有的话就添加这个班级
+class ClassAVLTree {
+    constructor() {
+        this.root = null;
+    }
+
+    //二叉树功能
+    getHeight(node) {
+        if (node == null) {
+            return 0;
+        }
+        return 1 + Math.max(this.getHeight(node.left), this.getHeight(node.right));
+    }
+
+    rotateRight(node) {
+        let newRoot = new ClassNode();
+        newRoot = node.left;
+        node.left = newRoot.right;
+        newRoot.right = node;
+        return newRoot;
+    }
+
+    rotateLeft(node) {
+        let newRoot = new ClassNode();
+        newRoot = node.right;
+        node.right = newRoot.left;
+        newRoot.left = node;
+        return newRoot;
+    }
+
+    //这里的node其实就是根节点
+    insert(node, newNode) {
+        if (node == null) {
+            return newNode;
+        }
+
+        //递归，直到插入结点之前都往下找
+        if (newNode.classIndex < node.classIndex) {
+            node.left = this.insert(node.left, newNode);
+        } else if (newNode.classIndex > node.classIndex) {
+            node.right = this.insert(node.right, newNode);
+        } else {
+            console.log('已经有这个班级了');
+            return node;
+        }
+
+        let balance = this.getHeight(node.left) - this.getHeight(node.right);
+
+        if (balance > 1 && newNode.classIndex < node.left.classIndex) {
+            return this.rotateRight(node);
+        }
+        if (balance < -1 && newNode.classIndex > node.right.classIndex) {
+            return this.rotateLeft(node);
+        }
+        if (balance > 1 && newNode.classIndex > node.left.classIndex) {
+            node.left = this.rotateLeft(node.left);
+            return this.rotateRight(node);
+        }
+        if (balance < -1 && newNode.classIndex < node.right.classIndex) {
+            node.right = this.rotateRight(node.right);
+            return this.rotateLeft(node);
+        }
+
+        return node;
+    }
+
+    insertNode(node) {
+        this.root = this.insert(this.root, node);
+    }
+
+    //根据班号查找班级
+    searchByIndex(classIndex) {
+        let current = this.root;
+        while (current) {
+            if (classIndex < current.classIndex) {
+                current = current.left;
+            } else if (classIndex > current.classIndex) {
+                current = current.right;
+            } else {
+                return current;
+            }
+        }
+        console.log('没有这个班级呀');
+        return null;
+    }
+
+    //注册学生时添加该学生班级
+    addClass(classIndex, userName) {
+        if (!this.searchByIndex(classIndex)) {
+            let newNode = new ClassNode(classIndex);
+            this.insertNode(newNode);
+            let newClass = Object.assign(new ClassNode(),newNode);
+            delete newClass.left;
+            delete newClass.right;
+            delete newClass.classEventList
+            newClass.classNumber = [];
+            newClass.event = [];
+            let data = loadJSON('class.json');
+            //let NewNode = [];
+            //NewNode.push(newNode);
+            data.push(newClass);
+            addToJSON('class.json',data);
+            newNode.addNumber(userName);
+        } else {
+            this.searchByIndex(classIndex).addNumber(userName);
+        }
+    }
+
+    //返回指定班级的事务链表的头节点
+    getClassEvent(classIndex) {
+        return this.searchByIndex(classIndex).classEventList;
+    }
+
+    preOrderTraversal() {
+        const allClasses = [];
+        this._preOrderTraversal(this.root, allClasses);
+        return allClasses;
+    }
+
+    _preOrderTraversal(node, allClasses) {
+        if (node) {
+            let temp = Object.assign(new userNode(), node);
+            delete temp.left;
+            delete temp.right;
+            allClasses.push(temp);
+            this._preOrderTraversal(node.left, allClasses);
+            this._preOrderTraversal(node.right, allClasses);
+        }
     }
 }
 
-function creatStaffList(){
-    let data = loadJSON('staff.json');
-    let StaffList = new staffList();
-    for(let i =0;i<data.length;i++){
-        let staff = new staffNode(data[i].userName,data[i].password,data[i].name);
-        StaffList.addStaff(staff);
+class StuAVLTree {
+    constructor() {
+        this.root = null;
     }
-    return StaffList;
-}
 
-function creatMonitorList(){
-    let data = loadJSON('monitor.json');
-    let MonitorList = new monitorList();
-    for(let i =0;i<data.length;i++){
-        let monitor = new monitorNode(data[i].userName,data[i].password,data[i].classIndex,data[i].name);
-        MonitorList.addMonitor(monitor);
+    getHeight(node) {
+        if (node == null) {
+            return 0;
+        }
+        return 1 + Math.max(this.getHeight(node.left), this.getHeight(node.right));
     }
-    return MonitorList;
-}
 
+    rotateRight(node) {
+        let newRoot = new userNode();
+        newRoot = node.left;
+        node.left = newRoot.right;
+        newRoot.right = node;
+        return newRoot;
+    }
+
+    rotateLeft(node) {
+        let newRoot = new userNode();
+        newRoot = node.right;
+        node.right = newRoot.left;
+        newRoot.left = node;
+        return newRoot;
+    }
+
+    insert(node, newNode) {
+        if (node == null) {
+            return newNode;
+        }
+
+        //递归，直到插入结点之前都往下找
+        if (newNode.userName < node.userName) {
+            node.left = this.insert(node.left, newNode);
+        } else if (newNode.userName > node.userName) {
+            node.right = this.insert(node.right, newNode);
+        } else {
+            console.log('已经有这个学生的账号了');
+            return node;
+        }
+
+        let balance = this.getHeight(node.left) - this.getHeight(node.right);
+
+        if (balance > 1 && newNode.userName < node.left.userName) {
+            return this.rotateRight(node);
+        }
+        if (balance < -1 && newNode.userName > node.right.userName) {
+            return this.rotateLeft(node);
+        }
+        if (balance > 1 && newNode.userName > node.left.userName) {
+            node.left = this.rotateLeft(node.left);
+            return this.rotateRight(node);
+        }
+        if (balance < -1 && newNode.userName < node.right.userName) {
+            node.right = this.rotateRight(node.right);
+            return this.rotateLeft(node);
+        }
+
+        return node;
+    }
+
+    insertNode(node) {
+        this.root = this.insert(this.root, node);
+    }
+
+    searchById(username) {
+        let current = this.root;
+        while (current) {
+            if (username < current.userName) {
+                current = current.left;
+            } else if (username > current.userName) {
+                current = current.right;
+            } else {
+                return current;
+            }
+        }
+        console.log('没有这个学生呀');
+        return null;
+    }
+
+    // 前序遍历
+    preOrderTraversal() {
+        const allStudents = [];
+        this._preOrderTraversal(this.root, allStudents);
+        return allStudents;
+    }
+
+    _preOrderTraversal(node, allStudents) {
+        if (node) {
+            let temp = Object.assign(new userNode(), node);
+            delete temp.left;
+            delete temp.right;
+            allStudents.push(temp);
+            this._preOrderTraversal(node.left, allStudents);
+            this._preOrderTraversal(node.right, allStudents);
+        }
+    }
+}
 
