@@ -15,7 +15,6 @@ app.register(autoLoad, {
 // 启动 Fastify 服务器
 const start = async () => {
     try {
-
         mainInit()
         await app.listen(8964);
         console.log('Server listening on port 3000');

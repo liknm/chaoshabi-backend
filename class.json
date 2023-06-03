@@ -1,0 +1,109 @@
+[
+  {
+    "classIndex": 1,
+    "classMember": 584,
+    "classNumber": [
+      "89"
+    ],
+    "event": [
+      {
+        "id": "8964",
+        "name": "nianren",
+        "start": "1970-01-01T00:00:00.000Z",
+        "duration": 0,
+        "reType": false,
+        "online": null,
+        "location": true,
+        "group": "",
+        "platform": "",
+        "next": null,
+        "isActivity": false
+      },
+      {
+        "id": 1016,
+        "name": "tgfhyjkl",
+        "start": "2023-05-28T12:52:37.528Z",
+        "duration": 0,
+        "reType": 0,
+        "online": false,
+        "location": null,
+        "group": true,
+        "platform": "",
+        "website": "",
+        "next": null,
+        "isActivity": true
+      },
+      {
+        "id": 1040,
+        "name": "asdf",
+        "start": "2023-05-28T14:10:07.903Z",
+        "duration": 0,
+        "reType": 0,
+        "online": false,
+        "location": null,
+        "group": true,
+        "platform": "",
+        "website": "",
+        "next": null,
+        "isActivity": true
+      },
+      {
+        "id": 1091,
+        "name": "asdfvsavs",
+        "start": "2023-05-28T19:00:02.246Z",
+        "duration": 0,
+        "reType": 0,
+        "online": false,
+        "location": 2,
+        "group": false,
+        "platform": "",
+        "website": "",
+        "next": null,
+        "isActivity": true
+      }
+    ]
+  },
+  {
+    "classIndex": 87,
+    "classMember": 5,
+    "classNumber": [
+      "adalovelace",
+      "alice",
+      "asdf",
+      "asdfasdfasf",
+      "asdfasdfasdfasfasfdasddfdasfddasfdasdfas"
+    ],
+    "event": []
+  },
+  {
+    "classIndex": 1234,
+    "classMember": 2,
+    "classNumber": [
+      "username",
+      "asdfasdfasdfvaswdfbvsadbasgfbew"
+    ],
+    "event": []
+  },
+  {
+    "classIndex": 8963,
+    "classMember": 1,
+    "classNumber": [
+      "shabi"
+    ],
+    "event": []
+  },
+  {
+    "classIndex": 65,
+    "classMember": 1,
+    "classNumber": [
+      "adalovelace"
+    ],
+    "event": []
+  },
+  {
+    "classIndex": null,
+    "classMember": 0,
+    "classNumber": [],
+    "event": []
+  }
+]

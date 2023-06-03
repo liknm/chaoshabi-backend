@@ -1,3 +1,6 @@
+import {getAllEventForPerson, stuAddEvent} from "../database/main.mjs";
+import user from "./user.js";
+
 export const autoPrefix = '/_api'
 export default async function event(fastify, opts) {
     const {} = fastify
@@ -6,7 +9,7 @@ export default async function event(fastify, opts) {
     fastify.route({
         method: 'GET',
         path: '/user/:userId/event',
-        schema: {
+        /*schema: {
             response: {
                 200: {
                     type: 'array',
@@ -22,7 +25,7 @@ export default async function event(fastify, opts) {
                     },
                 }
             }
-        },
+        },*/
         handler: getAllEventsForUser
     })
 
@@ -71,7 +74,7 @@ export default async function event(fastify, opts) {
     fastify.route({
         method: 'POST',
         path: '/user/:userId/event',
-        schema: {
+        /*schema: {
             requestBody: {
                 type: 'object',
                 properties: {
@@ -83,23 +86,15 @@ export default async function event(fastify, opts) {
                     type: 'object',
                 }
             }
-        },
+        },*/
         handler: addEventForUser
     })
 
     async function getAllEventsForUser(req, reply) {
-        const userId = req.params.userId;
-        //const events = await db.getUserEvents(userId);
-        const events=[
-            {
-                eventId: 'string',
-                eventName: 'string',
-                eventDescription: 'string',
-                eventStartTime: 'string',
-                eventEndTime: 'string',
-            }
-        ]
-        reply.send(events);
+        const data=req.body
+        const userId=req.params.userId
+        const result=getAllEventForPerson(userId)
+        reply.send(result)
     }
 
     async function deleteEventForUser(req, reply) {
@@ -119,7 +114,16 @@ export default async function event(fastify, opts) {
     async function addEventForUser(req, reply) {
         const userId = req.params.userId;
         const event = req.body;
-        //await db.addEventForUser(userId, event);
-        reply.send({ message: 'Event added successfully' });
+        console.log("eveeeeeeeeeeent：")
+        console.log(event);
+        const available=stuAddEvent(event.name,event.startTime,event.duration,event.reType,event.online,event.location,event.group,event.platform,event.website,userId)
+        if (available===null) {
+            console.log('success')
+            reply.send({message:'success'})
+        } else {
+            console.log('conflict')
+            console.log(available)
+            reply.send(available)
+        }
     }
 }

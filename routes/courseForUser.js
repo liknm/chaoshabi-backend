@@ -1,7 +1,7 @@
 import user from "./user.js";
 
 export const autoPrefix = '/_api'
-import {addCourse, insertUserCourse, modifyExamEverything} from '../database/main.mjs'
+import {createCourse, getAllCourseForPerson, insertUserCourse, modifyExamEverything} from '../database/main.mjs'
 import fs from "fs";
 export default async function course(fastify, opts) {
     const {} = fastify
@@ -9,7 +9,7 @@ export default async function course(fastify, opts) {
     fastify.route({
         method: 'GET',
         path: '/user/:id/course/all',
-        schema: {
+        /*schema: {
             response: {
                 200: {
                     type: 'array',
@@ -25,27 +25,27 @@ export default async function course(fastify, opts) {
                     },
                 }
             }
-        },
+        },*/
         handler: getAllCourses
     })
 
     fastify.route({
         method: 'DELETE',
         path: '/user/:id/course/:id',
-        schema: {
+        /*schema: {
             response: {
                 200: {
                     type: 'object',
                 }
             }
-        },
+        },*/
         handler: deleteCourse
     })
 
     fastify.route({
         method: 'PUT',
         path: '/user/:id/course',
-        schema: {
+        /*schema: {
             requestBody: {
                 type: 'array',
                 items: {
@@ -67,14 +67,14 @@ export default async function course(fastify, opts) {
                     type: 'object',
                 }
             }
-        },
+        },*/
         handler: reviseCourses
     })
 
     fastify.route({
         method: 'POST',
         path: '/user/:id/course',
-        schema: {
+        /*schema: {
             requestBody: {
                 type: 'object',
                 properties: {
@@ -87,27 +87,21 @@ export default async function course(fastify, opts) {
                     type: 'object',
                 }
             }
-        },
+        },*/
         handler: insertCourse
     })
 
     async function getAllCourses(req, reply) {
-        const id = req.params.id;
-        //const courses = await db.getUserCourses(id);
-        const courses=[
-            {
-                id: 'string',
-                name: 'string',
-                description: 'string',
-                start_date: 'string',
-                end_date: 'string',
-            }
-        ]
-        reply.send(courses);
+        const id=req.params.id
+        console.log('getall')
+        console.log(req.params)
+        const userCourses = getAllCourseForPerson(id)
+        console.log(userCourses)
+        reply.send(userCourses)
     }
 
     async function deleteCourse(req, reply) {
-        const id = req.params.id;
+        const id = req.params.id
         //await db.deleteCourse(id);
         reply.send({ message: 'Course deleted successfully' });
     }

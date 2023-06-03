@@ -1,4 +1,10 @@
-import  {addCourse,modifyExamEverything} from '../database/main.mjs'
+import {
+    createCourse,
+    getAllCourseForPerson,
+    getAllCoursesR,
+    modifyCourseEverything,
+    modifyExamEverything
+} from '../database/main.mjs'
 import fs from 'fs/promises'
 export const autoPrefix = '/_api'
 export default async function course(fastify, opts) {
@@ -17,7 +23,7 @@ export default async function course(fastify, opts) {
     fastify.route({
         method: 'GET',
         path: '/user/:id/course',
-        schema: {
+        /*schema: {
             querystring: {
                 type: 'object',
                 properties: {
@@ -33,7 +39,7 @@ export default async function course(fastify, opts) {
                     }
                 }
             }
-        },
+        },*/
         handler: getUserCourses
     })
 
@@ -41,7 +47,7 @@ export default async function course(fastify, opts) {
     fastify.route({
         method: 'POST',
         path: '/course',
-        schema: {
+        /*schema: {
             body: {
                 type: 'object',
                 properties: {
@@ -60,7 +66,7 @@ export default async function course(fastify, opts) {
                     }
                 }
             }
-        },
+        },*/
         handler: addCourse
     })
 
@@ -121,9 +127,10 @@ export default async function course(fastify, opts) {
     })
 
     async function getCourses(req, reply) {
-        try{
-            const courses = await fs.readFile('./database/course.json','utf8')
-            console.log(courses)
+        try{/*
+            const courses=getAllCoursesR()*/
+            //const courses=await fs.readFile('./database/course.json','utf8')
+            const courses=getAllCoursesR()
             reply.send(courses)
         } catch (e) {
             console.log(e)
@@ -131,21 +138,26 @@ export default async function course(fastify, opts) {
     }
 
     async function getUserCourses(req, reply) {
-        const { id } = req.query
-        const userCourses = courses.filter(c => c.userId === id)
+        const { id } = req.params.id
+        const userCourses = getAllCourseForPerson(id)
         reply.send(userCourses)
     }
 
     async function addCourse(req, reply) {
         const course = req.body
-        //addCourse(...course);
-        reply.code(201).send({ message: 'Course added successfully', id })
+        const id=createCourse(course.name,course.weekday,course.startTime,course.duration,course.periodic,course.location)
+        if (id==null) {
+            reply.status(500).send({message:'Course has existed'})
+        } else {
+            reply.status(200).send({message:'success'})
+        }
     }
-
     async function updateCourse(req, reply) {
-        const courses = req.body;
+        const course = req.body;
         const id=req.params.id;
-        modifyExamEverything(...courses);
+        console.log('received')
+        console.log(course)
+        modifyCourseEverything(course.time,course.location,course.duration,course.weekday,id);
         reply.send({ message: 'Courses revised successfully' });
     }
 
