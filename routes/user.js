@@ -1,4 +1,4 @@
-import {addStudent} from "../database/main.mjs";
+import {addStudent, staffLogin, stuLoginIn} from "../database/main.mjs";
 
 export const autoPrefix = '/_api'
 export default async function user(fastify, opts) {
@@ -16,7 +16,7 @@ export default async function user(fastify, opts) {
     fastify.route({
         method: 'POST',
         path: '/user',
-        schema: {
+        /*schema: {
             body: {
                 type: 'object',
                 properties: {
@@ -38,7 +38,7 @@ export default async function user(fastify, opts) {
                     }
                 }
             }
-        },
+        },*/
         handler: addUser
     })
 
@@ -97,6 +97,11 @@ export default async function user(fastify, opts) {
         },
         handler: deleteUser
     })
+    fastify.route({
+        method:'POST',
+        path:'/login',
+        handler:handleLogin
+    })
 
     async function getUsers(req, reply) {
         user=[]
@@ -105,9 +110,10 @@ export default async function user(fastify, opts) {
 
     async function addUser(req, reply) {
         const user = req.body
-        //username, password, Name, classnumber,
-        addStudent(...user)
-        reply.code(201).send({ message: 'User added successfully', id })
+        //username, password, Name, classnumber
+        console.log(user)
+        addStudent(user.username,user.password,user.name,parseInt(user.className))
+        reply.status(200).send({message:'success'})
     }
 // useless
     async function updateUser(req, reply) {
@@ -126,5 +132,21 @@ export default async function user(fastify, opts) {
         }
         users.splice(index, 1)*/
         reply.send({ message: 'User deleted successfully' })
+    }
+    async function handleLogin(req,reply) {
+        const data=req.body
+        const userGroup=data.userGroup;
+        let result=false
+        if (userGroup==='admin') {
+            result=staffLogin(data.username,data.password)
+
+        } else {
+            result=stuLoginIn(data.username,data.password)
+        }
+        if (result) {
+            reply.send({message:'success'})
+        } else {
+            reply.status(401).send({message:'error'})
+        }
     }
 }

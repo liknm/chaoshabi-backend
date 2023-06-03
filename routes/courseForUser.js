@@ -32,20 +32,20 @@ export default async function course(fastify, opts) {
     fastify.route({
         method: 'DELETE',
         path: '/user/:id/course/:id',
-        schema: {
+        /*schema: {
             response: {
                 200: {
                     type: 'object',
                 }
             }
-        },
+        },*/
         handler: deleteCourse
     })
 
     fastify.route({
         method: 'PUT',
         path: '/user/:id/course',
-        schema: {
+        /*schema: {
             requestBody: {
                 type: 'array',
                 items: {
@@ -67,14 +67,14 @@ export default async function course(fastify, opts) {
                     type: 'object',
                 }
             }
-        },
+        },*/
         handler: reviseCourses
     })
 
     fastify.route({
         method: 'POST',
         path: '/user/:id/course',
-        schema: {
+        /*schema: {
             requestBody: {
                 type: 'object',
                 properties: {
@@ -87,18 +87,21 @@ export default async function course(fastify, opts) {
                     type: 'object',
                 }
             }
-        },
+        },*/
         handler: insertCourse
     })
 
     async function getAllCourses(req, reply) {
-        const { id } = req.params.id
+        const id=req.params.id
+        console.log('getall')
+        console.log(req.params)
         const userCourses = getAllCourseForPerson(id)
+        console.log(userCourses)
         reply.send(userCourses)
     }
 
     async function deleteCourse(req, reply) {
-        const id = req.params.id;
+        const id = req.params.id
         //await db.deleteCourse(id);
         reply.send({ message: 'Course deleted successfully' });
     }

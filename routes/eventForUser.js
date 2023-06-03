@@ -9,7 +9,7 @@ export default async function event(fastify, opts) {
     fastify.route({
         method: 'GET',
         path: '/user/:userId/event',
-        schema: {
+        /*schema: {
             response: {
                 200: {
                     type: 'array',
@@ -25,7 +25,7 @@ export default async function event(fastify, opts) {
                     },
                 }
             }
-        },
+        },*/
         handler: getAllEventsForUser
     })
 
@@ -74,7 +74,7 @@ export default async function event(fastify, opts) {
     fastify.route({
         method: 'POST',
         path: '/user/:userId/event',
-        schema: {
+        /*schema: {
             requestBody: {
                 type: 'object',
                 properties: {
@@ -86,7 +86,7 @@ export default async function event(fastify, opts) {
                     type: 'object',
                 }
             }
-        },
+        },*/
         handler: addEventForUser
     })
 
@@ -94,7 +94,7 @@ export default async function event(fastify, opts) {
         const data=req.body
         const userId=req.params.userId
         const result=getAllEventForPerson(userId)
-        reply.status(200).send(result)
+        reply.send(result)
     }
 
     async function deleteEventForUser(req, reply) {
@@ -114,12 +114,16 @@ export default async function event(fastify, opts) {
     async function addEventForUser(req, reply) {
         const userId = req.params.userId;
         const event = req.body;
-        const available=stuAddEvent(...event,userId)
+        console.log("eveeeeeeeeeeent：")
+        console.log(event);
+        const available=stuAddEvent(event.name,event.startTime,event.duration,event.reType,event.online,event.location,event.group,event.platform,event.website,userId)
         if (available===null) {
-            reply.send({message:true})
+            console.log('success')
+            reply.send({message:'success'})
         } else {
-            reply.send({success:false,available})
-
+            console.log('conflict')
+            console.log(available)
+            reply.send(available)
         }
     }
 }

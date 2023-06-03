@@ -23,7 +23,7 @@ export default async function course(fastify, opts) {
     fastify.route({
         method: 'GET',
         path: '/user/:id/course',
-        schema: {
+        /*schema: {
             querystring: {
                 type: 'object',
                 properties: {
@@ -39,7 +39,7 @@ export default async function course(fastify, opts) {
                     }
                 }
             }
-        },
+        },*/
         handler: getUserCourses
     })
 
@@ -47,7 +47,7 @@ export default async function course(fastify, opts) {
     fastify.route({
         method: 'POST',
         path: '/course',
-        schema: {
+        /*schema: {
             body: {
                 type: 'object',
                 properties: {
@@ -66,7 +66,7 @@ export default async function course(fastify, opts) {
                     }
                 }
             }
-        },
+        },*/
         handler: addCourse
     })
 
@@ -145,18 +145,19 @@ export default async function course(fastify, opts) {
 
     async function addCourse(req, reply) {
         const course = req.body
-        const id=createCourse(course)
+        const id=createCourse(course.name,course.weekday,course.startTime,course.duration,course.periodic,course.location)
         if (id==null) {
             reply.status(500).send({message:'Course has existed'})
         } else {
-            reply.status(200).send(id)
+            reply.status(200).send({message:'success'})
         }
     }
-
     async function updateCourse(req, reply) {
-        const courses = req.body;
+        const course = req.body;
         const id=req.params.id;
-        modifyCourseEverything(...courses);
+        console.log('received')
+        console.log(course)
+        modifyCourseEverything(course.time,course.location,course.duration,course.weekday,id);
         reply.send({ message: 'Courses revised successfully' });
     }
 

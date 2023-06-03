@@ -19,10 +19,10 @@ export default async function exam(fastify,) {
     })
     fastify.route({
         method:'PUT',
-        path:'/exam/"id',
+        path:'/exam',
         handler:modifyExam
     })
-    fastify.req({
+    fastify.route({
         method:'POST',
         path:'/exam',
         handler:releaseExam
@@ -41,19 +41,23 @@ async function getAllExams(req, reply) {
 
 async function getAllExamsForStudent(req, reply) {
     const username = req.params.username
+    console.log(username)
     const result = getAllExamForStudent(username)
+    console.log(result)
     reply.send(result)
 }
 async function modifyExam(req,reply) {
     const data=req.body
-    modifyExamEverything(...data)
+    console.log(data)
+    modifyExamEverything(data.startTime,data.endTime,data.location,data.id,data.name)
     reply.status(200).send()
 }
 async function releaseExam(req,reply) {
     const data=req.body
-    const flag=createExam(...data)
+    console.log(data)
+    const flag=createExam(data.name,data.startTime,data.endTime,data.location)
     if (flag===true) {
-        reply.status(200).send()
+        reply.status(200).send({message:'考试发布成功'})
     } else  {
         reply.status(400).send({message:'exam has existed'})
     }
