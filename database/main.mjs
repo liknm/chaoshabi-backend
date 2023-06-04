@@ -121,7 +121,6 @@ export function modifyCourseEverything(time, location, duration, newWeekday, id)
         }
     }
 
-    console.log('finish')
     addToJSON('course.json', data);
 }
 
@@ -140,7 +139,6 @@ export function modifyExamEverything(startTime, endTime, location, id, name) {
             data[i].location = location;
         }
     }
-    console.log('finish')
     addToJSON('exam.json', data);
 }
 
@@ -182,13 +180,11 @@ function stuAddExam(examId, username) {
 //学生添加个人事件，带判断那种，就是有冲突会反馈给你三个时间点
 export function stuAddEvent(genre, name, startTime, duration, reType, online, location, group, platform, website, username, isActivity) {
     const studentNode = stuTree.searchById(username)
-    console.log(`isactivity?${isActivity}`)
     let event = new Event(genre, maxEvent, name, startTime, duration, reType, online, location, group, platform, website, isActivity);
     addMaxEvent()
     if (studentNode.addEvent(event, courseBytime, examById)) {
         let available = new Array(3);
         available = studentNode.addEvent(event, courseBytime, examById);
-        console.log(available);
         return available
     } else {   //前边如果没问题会添加的，不用再单列这个情况了
         return null
@@ -283,9 +279,6 @@ export function getAllExamForAdmin() {
 //拿到个人的课
 export function getAllCourseForPerson(username) {
     const student = stuTree.searchById(username);
-    console.log('1111')
-    console.log((student))
-    console.log(student.getAllCourse(courseById));
     return student.getAllCourse(courseById) || []
 }
 
@@ -436,8 +429,6 @@ export function creatClassAVLtree() {
     for (let i = 0; i < Data.length; i++) {
         let Class = new ClassNode(Data[i].classIndex);
         for (let j = 0; j < Data[i].classNumber.length; j++) {
-            console.log('classNumber!!')
-            console.log(Data[i].classNumber)
             Class.addClassMemberFromFile(Data[i].classNumber[j]);
         }
         for (let j = 0; j < Data[i].event.length; j++) {
