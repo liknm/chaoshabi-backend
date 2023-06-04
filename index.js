@@ -6,7 +6,8 @@ import cors from '@fastify/cors'
 import {PORT} from "./config.js";
 import sensible from 'fastify-sensible';
 import pino from 'pino';
-
+import fastifyStatic from "@fastify/static";
+import path from "path";
 // 创建一个日志器，并将输出重定向到 logs.txt 文件，并使用 pino.transport 方法来指定一个 prettifier
 const logger = pino(pino.transport({
     target: 'pino-pretty',
@@ -14,11 +15,19 @@ const logger = pino(pino.transport({
         destination: 'logs.txt'
     }
 }));
-
+const buildDir = path.join(path.dirname(new URL(import.meta.url).pathname), 'build');
 const app = fastify({logger});
 app.register(cors, {origin: '*'});
 // 注册 fastify-sensible 插件来处理错误
 app.register(sensible);
+
+app.register(fastifyStatic,{
+    root: buildDir
+})
+app.setNotFoundHandler((req, res) => {
+    res.sendFile(path.join(buildDir,'/index.js'))
+})
+
 // 加载自动装载程序以加载路由
 app.register(autoLoad, {
     dir: join(import.meta.url, 'routes'),
