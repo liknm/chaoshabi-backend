@@ -1,8 +1,7 @@
-import user from "./user.js";
+import {getAllCourseForPerson, insertUserCourse} from '../database/main.mjs'
 
 export const autoPrefix = '/_api'
-import {createCourse, getAllCourseForPerson, insertUserCourse, modifyExamEverything} from '../database/main.mjs'
-import fs from "fs";
+
 export default async function course(fastify, opts) {
     const {} = fastify
 
@@ -92,7 +91,7 @@ export default async function course(fastify, opts) {
     })
 
     async function getAllCourses(req, reply) {
-        const id=req.params.id
+        const id = req.params.id
         console.log('getall')
         console.log(req.params)
         const userCourses = getAllCourseForPerson(id)
@@ -103,7 +102,7 @@ export default async function course(fastify, opts) {
     async function deleteCourse(req, reply) {
         const id = req.params.id
         //await db.deleteCourse(id);
-        reply.send({ message: 'Course deleted successfully' });
+        reply.send({message: 'Course deleted successfully'});
     }
 
     async function reviseCourses(req, reply) {
@@ -112,9 +111,9 @@ export default async function course(fastify, opts) {
 
     async function insertCourse(req, reply) {
         const courseId = req.body.id;
-        const userId=req.params.id;
-        const courseName=req.body.name;
-        insertUserCourse(userId,courseId,courseName)
-        reply.send({ message: 'Course added successfully' });
+        const userId = req.params.id;
+        const courseName = req.body.name;
+        insertUserCourse(userId, courseId, courseName)
+        reply.send({message: 'Course added successfully'});
     }
 }

@@ -50,23 +50,23 @@ export default async function user(fastify, opts) {
             params: {
                 type: 'object',
                 properties: {
-                    id: { type: 'string' }
+                    id: {type: 'string'}
                 },
                 required: ['id']
             },
             body: {
                 type: 'object',
                 properties: {
-                    name: { type: 'string' },
-                    age: { type: 'number' },
-                    email: { type: 'string' }
+                    name: {type: 'string'},
+                    age: {type: 'number'},
+                    email: {type: 'string'}
                 }
             },
             response: {
                 200: {
                     type: 'object',
                     properties: {
-                        message: { type: 'string' }
+                        message: {type: 'string'}
                     }
                 }
             }
@@ -82,7 +82,7 @@ export default async function user(fastify, opts) {
             params: {
                 type: 'object',
                 properties: {
-                    id: { type: 'string' }
+                    id: {type: 'string'}
                 },
                 required: ['id']
             },
@@ -90,7 +90,7 @@ export default async function user(fastify, opts) {
                 200: {
                     type: 'object',
                     properties: {
-                        message: { type: 'string' }
+                        message: {type: 'string'}
                     }
                 }
             }
@@ -98,13 +98,13 @@ export default async function user(fastify, opts) {
         handler: deleteUser
     })
     fastify.route({
-        method:'POST',
-        path:'/login',
-        handler:handleLogin
+        method: 'POST',
+        path: '/login',
+        handler: handleLogin
     })
 
     async function getUsers(req, reply) {
-        user=[]
+        user = []
         reply.send(users)
     }
 
@@ -112,41 +112,44 @@ export default async function user(fastify, opts) {
         const user = req.body
         //username, password, Name, classnumber
         console.log(user)
-        addStudent(user.username,user.password,user.name,parseInt(user.className))
-        reply.status(200).send({message:'success'})
+        addStudent(user.username, user.password, user.name, parseInt(user.className))
+        reply.status(200).send({message: 'success'})
     }
+
 // useless
     async function updateUser(req, reply) {
-        const { id } = req.params
+        const {id} = req.params
         const user = req.body
 
-        reply.send({ message: 'User updated successfully' })
+        reply.send({message: 'User updated successfully'})
     }
+
 // useless
     async function deleteUser(req, reply) {
-        const { id } = req.params
+        const {id} = req.params
         /*const index = users.findIndex(u => u.id === id)
         if (index === -1) {
             reply.code(404).send({ message: 'User not found' })
             return
         }
         users.splice(index, 1)*/
-        reply.send({ message: 'User deleted successfully' })
+        reply.send({message: 'User deleted successfully'})
     }
-    async function handleLogin(req,reply) {
-        const data=req.body
-        const userGroup=data.userGroup;
-        let result=false
-        if (userGroup==='admin') {
-            result=staffLogin(data.username,data.password)
+
+    async function handleLogin(req, reply) {
+        const data = req.body
+        const userGroup = data.userGroup;
+        let result = false
+        if (userGroup === 'admin') {
+            result = staffLogin(data.username, data.password)
 
         } else {
-            result=stuLoginIn(data.username,data.password)
+            result = stuLoginIn(data.username, data.password)
         }
         if (result) {
-            reply.send({message:'success'})
+            reply.send({message: 'success'})
         } else {
-            reply.status(401).send({message:'error'})
+            reply.status(401).send({message: 'error'})
         }
     }
 }

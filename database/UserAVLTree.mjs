@@ -1,10 +1,11 @@
 import fs from "fs";
+import {Exam} from './hash.mjs';
+import {addToJSON, loadJSON} from "./main.mjs";
 
 export {Event, userNode, ClassNode, staffNode, staffList, monitorNode, monitorList, ClassAVLTree, StuAVLTree}
 
-import {CourseTableByname, CourseTableBytime, CourseTableById, ExamTableByname, Exam} from './hash.mjs';
-import {addToJSON, loadJSON} from "./main.mjs";
-const dashjabi= new Date()
+const dashjabi = new Date()
+
 class Node {
     constructor() {
         this.data = 0;
@@ -49,7 +50,7 @@ class Course {
 
 //上边好像都可以隐去
 class Event {
-    constructor(genre,id, name, startTime, duration, reType, online, location, group, platform, website, isActivity ) {
+    constructor(genre, id, name, startTime, duration, reType, online, location, group, platform, website, isActivity) {
         this.id = id;
         this.name = name;
         this.start = new Date(startTime);
@@ -116,7 +117,7 @@ class userNode {
             let tempNode;
             console.log('111')
             console.log(current)
-            console.log('zhe'+current.data);
+            console.log('zhe' + current.data);
             if ((tempNode = courseById.isExist(current.data % 13, current.data)) !== null) {
                 console.log(tempNode)
                 let temp = Object.assign(new Course(), tempNode);
@@ -183,7 +184,7 @@ class userNode {
     }
 
     addEventFromFile(node) {
-        if(typeof (node.start)!==typeof (dashjabi)){
+        if (typeof (node.start) !== typeof (dashjabi)) {
             node.start = new Date(node.start);
         }
         this.courseList.addNode(node);
@@ -379,7 +380,7 @@ class userNode {
         let current = eventList.head.next;
         while (current) {
             console.log("1111111")
-            current.start=new Date(current.start)
+            current.start = new Date(current.start)
             if (current.reType == 0) {
                 if (current.start.getMonth() === node.start.getMonth() && current.start.getDate() === node.start.getDate()) {
                     if ((current.start.getHours() <= node.start.getHours() && current.start.getHours() + current.duration >= node.start.getHours()) || (node.start.getHours() <= current.start.getHours() && node.start.getHours() + node.duration >= current.start.getHours
@@ -751,7 +752,7 @@ class ClassNode {
     //判断班级事务与已有班级事务，个人事务，个人课程,个人考试是否重复
     //已完成：与个人冲突应该普查完所有人而不是查冲突的那一个人，就是searchTime要改嘛改成遍历整个班和班级事务
     addClassEvent(node, userTree, courseBytime, examById) {
-        if(typeof (node.start)!==typeof (dashjabi)){
+        if (typeof (node.start) !== typeof (dashjabi)) {
             node.start = new Date(node.start);
         }
         if (!this.isConflictWithGroup(node)) {
@@ -802,7 +803,7 @@ class ClassNode {
         let current = this.classEventList.head.next;
         while (current) {
             console.log('startttttttttttt')
-            current.start=new Date(current.start)
+            current.start = new Date(current.start)
             //存疑，事务类的数据是否有更好的时间匹配方式
             if (current.reType == 0) {
                 if (current.start.getMonth() === node.start.getMonth() && current.start.getDate() === node.start.getDate()) {
@@ -1088,7 +1089,7 @@ class ClassAVLTree {
 
     //根据班号查找班级
     searchByIndex(classIndex) {
-        if(!classIndex){
+        if (!classIndex) {
             return null;
         }
         let current = this.root;
@@ -1234,7 +1235,7 @@ class StuAVLTree {
     }
 
     searchById(username) {
-        if(!username){
+        if (!username) {
             return null;
         }
         let current = this.root;

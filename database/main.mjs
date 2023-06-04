@@ -1,24 +1,22 @@
 import {
-    Node,
-    list,
     Course,
-    Exam,
+    CourseTableById,
     CourseTableByname,
     CourseTableBytime,
-    CourseTableById,
-    ExamTableByname,
+    Exam,
     ExamTableById,
+    ExamTableByname,
 } from './hash.mjs';
 import {
-    Event,
-    userNode,
-    ClassNode,
-    staffNode,
-    staffList,
-    monitorNode,
-    monitorList,
     ClassAVLTree,
-    StuAVLTree
+    ClassNode,
+    Event,
+    monitorList,
+    monitorNode,
+    staffList,
+    staffNode,
+    StuAVLTree,
+    userNode
 } from './UserAVLTree.mjs';
 
 import fs from "fs";
@@ -69,8 +67,8 @@ export function createCourse(name, weekday, startTime, duration, periodic, locat
     let course = new Course(maxCourseId, name, weekday, startTime, duration, periodic, location);
     addMaxCourseId()
     let data = loadJSON('course.json');
-    let newCourse = Object.assign(new Course(),course);
-    delete  newCourse.next;
+    let newCourse = Object.assign(new Course(), course);
+    delete newCourse.next;
     data.push(newCourse);
     addToJSON('course.json', data);
     const flag1 = courseByname.insert(course);
@@ -95,8 +93,8 @@ export function createExam(name, startTime, EndTime, location) {
 
 
 export function modifyCourseEverything(time, location, duration, newWeekday, id) {
-    let course = courseById.isExist(id%13,id);
-    let weekday =course.weekday;
+    let course = courseById.isExist(id % 13, id);
+    let weekday = course.weekday;
     let name = course.name;
     courseByname.modifyTime(name, id, time);
     courseBytime.modifyTime(weekday, id, time);
@@ -182,10 +180,10 @@ function stuAddExam(examId, username) {
 }
 
 //学生添加个人事件，带判断那种，就是有冲突会反馈给你三个时间点
-export function stuAddEvent(genre,name, startTime, duration, reType, online, location, group, platform, website, username,isActivity) {
+export function stuAddEvent(genre, name, startTime, duration, reType, online, location, group, platform, website, username, isActivity) {
     const studentNode = stuTree.searchById(username)
     console.log(`isactivity?${isActivity}`)
-    let event = new Event(genre,maxEvent, name, startTime, duration, reType, online, location, group, platform, website,isActivity);
+    let event = new Event(genre, maxEvent, name, startTime, duration, reType, online, location, group, platform, website, isActivity);
     addMaxEvent()
     if (studentNode.addEvent(event, courseBytime, examById)) {
         let available = new Array(3);
@@ -205,15 +203,15 @@ function findDay2nd(studentNode, courseBytime, weekday) {
 }
 
 //班长添加集体事件，第一次加，如果有冲突会返回有冲突的时间
-export function addClassEvent(genre,name, startTime, duration, reType, online, location, group, platform, website, classIndex) {
+export function addClassEvent(genre, name, startTime, duration, reType, online, location, group, platform, website, classIndex) {
     let availableTime = new Array(3);
-    let event = new Event(genre,maxEvent,name, startTime, duration, reType, online, location, group, platform, website,true);
+    let event = new Event(genre, maxEvent, name, startTime, duration, reType, online, location, group, platform, website, true);
     addMaxEvent()
     let classNode = classTree.searchByIndex(classIndex);
-    if(!classNode){
+    if (!classNode) {
         throw Error('class index not exist')
     }
-    if ((availableTime = classNode.addClassEvent(genre,event, stuTree,courseBytime,examById)) !== null) {
+    if ((availableTime = classNode.addClassEvent(genre, event, stuTree, courseBytime, examById)) !== null) {
         return availableTime
     }
     return null
@@ -224,8 +222,8 @@ function addClassNumber() {
 }
 
 //添加集体事件，找到冲突最少时间后调用
-export function addClassEventDirect(genre,name, startTime, duration, reType, online, location, group, platform, website, classIndex,isActivity) {
-    let event = new Event(genre,maxEvent,name, startTime, duration, reType, online, location, group, platform, website,isActivity);
+export function addClassEventDirect(genre, name, startTime, duration, reType, online, location, group, platform, website, classIndex, isActivity) {
+    let event = new Event(genre, maxEvent, name, startTime, duration, reType, online, location, group, platform, website, isActivity);
     addMaxEvent()
     let classNode = classTree.searchByIndex(classIndex);
     classNode.addEventDirectly(event, stuTree);
@@ -237,6 +235,7 @@ function addStaff(username, password, Name, staffs) {
     staffs.addStaff(staff);
     addToJSON('staff.json', staff);
 }
+
 export function getAllClassIndex() {
     let classIndexs = [];
     classIndexs = classTree.preOrderTraversalForIndex();
@@ -259,6 +258,7 @@ export function getAllCourse() {
     }
     return courses;
 }
+
 export function getAllCoursesR() {
     return getAllCourse(courseBytime)
 }
@@ -288,6 +288,7 @@ export function getAllCourseForPerson(username) {
     console.log(student.getAllCourse(courseById));
     return student.getAllCourse(courseById) || []
 }
+
 export function getAllCourseForOneMan() {
     return getAllEventForPerson()
 }
@@ -404,6 +405,7 @@ function modifyEventByPerson(username, id, name, start, duration, reType, online
     }
     addToJSON('user.json', data);
 }
+
 //修改
 function modifyEventByClass(classIndex, id, name, start, duration, reType, online, location, group, platform, website) {
     let data = loadJSON('class.json');
@@ -472,7 +474,9 @@ function creatCourseHash() {
         courseById.insert(course);
     }
 }
-let exam=[]
+
+let exam = []
+
 function creatExamHash() {
     let data = loadJSON('exam.json');
     for (let i = 0; i < data.length; i++) {
@@ -509,24 +513,25 @@ function creatEverything() {
     loadParameters()
 
 }
-const addMaxCourseId=()=>{
+
+const addMaxCourseId = () => {
     maxCourseId++;
     saveParameters()
 }
-const addMaxEvent=()=>{
+const addMaxEvent = () => {
     maxEvent++;
     saveParameters()
 }
-const addMaxExam=()=>{
+const addMaxExam = () => {
     maxExam++;
     saveParameters()
 }
-const saveParameters=()=>{
-    saveJSON('parameters.json',{maxCourseId,maxEvent,maxExam})
+const saveParameters = () => {
+    saveJSON('parameters.json', {maxCourseId, maxEvent, maxExam})
 }
-const loadParameters=()=>{
-    const data=loadJSON('parameters.json')
-    maxCourseId=data.maxCourseId
-    maxEvent=data.maxEvent
-    maxExam=data.maxExam
+const loadParameters = () => {
+    const data = loadJSON('parameters.json')
+    maxCourseId = data.maxCourseId
+    maxEvent = data.maxEvent
+    maxExam = data.maxExam
 }

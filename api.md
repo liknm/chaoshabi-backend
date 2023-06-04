@@ -1,7 +1,7 @@
 ### Course
 
 | type    | name      | description                                            |
-| ------- | --------- | ------------------------------------------------------ |
+|---------|-----------|--------------------------------------------------------|
 | integer | id        | the unique id of a course                              |
 | string  | name      | the name of course                                     |
 | integer | weekday   | the weekday of going to course                         |
@@ -13,7 +13,7 @@
 ### Exam
 
 | type    | name      | description               |
-| ------- | --------- | ------------------------- |
+|---------|-----------|---------------------------|
 | integer | id        | the unique id of a course |
 | string  | name      | the name of an exam       |
 | Date    | startTime | the start of an exam      |
@@ -23,7 +23,7 @@
 ### User
 
 | type      | name            | description            |
-| --------- | --------------- | ---------------------- |
+|-----------|-----------------|------------------------|
 | string    | username        | username               |
 | string    | password        | password(encrypted)    |
 | string    | name            | name                   |
@@ -35,7 +35,7 @@
 ### Class
 
 | type      | name           | description                          |
-| --------- | -------------- | ------------------------------------ |
+|-----------|----------------|--------------------------------------|
 | string    | classIndex     | classIndex                           |
 | string    | classMember    | the number of students in this class |
 | Array     | classNumber    | Store student's ID                   |
@@ -45,7 +45,7 @@
 ### Event
 
 | type   | name     | description                                 |
-| ------ | -------- | ------------------------------------------- |
+|--------|----------|---------------------------------------------|
 | string | id       |                                             |
 | string | name     | name                                        |
 | Date   | start    |                                             |
@@ -62,12 +62,12 @@
 ### eventGenre
 
 | type   | name | description |
-| ------ | ---- | ----------- |
+|--------|------|-------------|
 | int    | id   | id          |
 | string | name | name        |
 
 | route                | method | description                                     | request body                                    | response                              |
-| -------------------- | ------ | ----------------------------------------------- | ----------------------------------------------- | ------------------------------------- |
+|----------------------|--------|-------------------------------------------------|-------------------------------------------------|---------------------------------------|
 | /user/:id/course/    | get    | to get all courses that one has                 | -                                               | message:                              |
 | /user/:id/course/:id | delete | to delete one course someone have               | -                                               | message:                              |
 | /user/:id/course     | put    | to revise all the courses one has in one time   | an array of the user's all new courses' ids     | message:                              |
@@ -132,7 +132,7 @@ export default async function course(fastify, opts) {
 ```
 
 | route       | method | description                       | request body           | response                     |
-| ----------- | ------ | --------------------------------- | ---------------------- | ---------------------------- |
+|-------------|--------|-----------------------------------|------------------------|------------------------------|
 | /course     | get    | to get all courses                | -                      | an array for all the courses |
 | /course/:id | put    | to alter one course's information | a object of the course | message:                     |
 | /course/:id | delete | to delete a specific course       | -                      | message:                     |

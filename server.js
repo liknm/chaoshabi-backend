@@ -1,4 +1,4 @@
-const fastify = require('fastify')({ logger: true })
+const fastify = require('fastify')({logger: true})
 
 fastify.route({
     method: 'GET',
@@ -11,7 +11,7 @@ fastify.route({
             200: {
                 type: 'object',
                 properties: {
-                    hello: { type: 'string' }
+                    hello: {type: 'string'}
                 }
             }
         }
@@ -21,13 +21,13 @@ fastify.route({
         // E.g. check authentication
     },
     handler: async (request, reply) => {
-        return { hello: 'world' }
+        return {hello: 'world'}
     }
 })
 
 const start = async () => {
     try {
-        await fastify.listen({ port: 3000 })
+        await fastify.listen({port: 3000})
     } catch (err) {
         fastify.log.error(err)
         process.exit(1)

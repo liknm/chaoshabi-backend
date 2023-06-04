@@ -1,4 +1,3 @@
-import fs from 'fs/promises'
 import {getAllClassIndex} from "../database/main.mjs";
 
 export const autoPrefix = '/_api'

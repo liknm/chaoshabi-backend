@@ -1,11 +1,5 @@
-import {
-    createCourse,
-    getAllCourseForPerson,
-    getAllCoursesR,
-    modifyCourseEverything,
-    modifyExamEverything
-} from '../database/main.mjs'
-import fs from 'fs/promises'
+import {createCourse, getAllCourseForPerson, getAllCoursesR, modifyCourseEverything} from '../database/main.mjs'
+
 export const autoPrefix = '/_api'
 export default async function course(fastify, opts) {
     const {} = fastify
@@ -78,23 +72,23 @@ export default async function course(fastify, opts) {
             params: {
                 type: 'object',
                 properties: {
-                    id: { type: 'string' }
+                    id: {type: 'string'}
                 },
                 required: ['id']
             },
             body: {
                 type: 'object',
                 properties: {
-                    name: { type: 'string' },
-                    teacher: { type: 'string' },
-                    time: { type: 'string' }
+                    name: {type: 'string'},
+                    teacher: {type: 'string'},
+                    time: {type: 'string'}
                 }
             },
             response: {
                 200: {
                     type: 'object',
                     properties: {
-                        message: { type: 'string' }
+                        message: {type: 'string'}
                     }
                 }
             }
@@ -110,7 +104,7 @@ export default async function course(fastify, opts) {
             params: {
                 type: 'object',
                 properties: {
-                    id: { type: 'string' }
+                    id: {type: 'string'}
                 },
                 required: ['id']
             },
@@ -118,7 +112,7 @@ export default async function course(fastify, opts) {
                 200: {
                     type: 'object',
                     properties: {
-                        message: { type: 'string' }
+                        message: {type: 'string'}
                     }
                 }
             }
@@ -127,10 +121,10 @@ export default async function course(fastify, opts) {
     })
 
     async function getCourses(req, reply) {
-        try{/*
+        try {/*
             const courses=getAllCoursesR()*/
             //const courses=await fs.readFile('./database/course.json','utf8')
-            const courses=getAllCoursesR()
+            const courses = getAllCoursesR()
             reply.send(courses)
         } catch (e) {
             console.log(e)
@@ -138,37 +132,38 @@ export default async function course(fastify, opts) {
     }
 
     async function getUserCourses(req, reply) {
-        const { id } = req.params.id
+        const {id} = req.params.id
         const userCourses = getAllCourseForPerson(id)
         reply.send(userCourses)
     }
 
     async function addCourse(req, reply) {
         const course = req.body
-        const id=createCourse(course.name,course.weekday,course.startTime,course.duration,course.periodic,course.location)
-        if (id==null) {
-            reply.status(500).send({message:'Course has existed'})
+        const id = createCourse(course.name, course.weekday, course.startTime, course.duration, course.periodic, course.location)
+        if (id == null) {
+            reply.status(500).send({message: 'Course has existed'})
         } else {
-            reply.status(200).send({message:'success'})
+            reply.status(200).send({message: 'success'})
         }
     }
+
     async function updateCourse(req, reply) {
         const course = req.body;
-        const id=req.params.id;
+        const id = req.params.id;
         console.log('received')
         console.log(course)
-        modifyCourseEverything(course.time,course.location,course.duration,course.weekday,id);
-        reply.send({ message: 'Courses revised successfully' });
+        modifyCourseEverything(course.time, course.location, course.duration, course.weekday, id);
+        reply.send({message: 'Courses revised successfully'});
     }
 
     async function deleteCourse(req, reply) {
-        const { id } = req.params
+        const {id} = req.params
         const index = courses.findIndex(c => c.id === id)
         if (index === -1) {
-            reply.code(404).send({ message: 'Course not found' })
+            reply.code(404).send({message: 'Course not found'})
             return
         }
         courses.splice(index, 1)
-        reply.send({ message: 'Course deleted successfully' })
+        reply.send({message: 'Course deleted successfully'})
     }
 }

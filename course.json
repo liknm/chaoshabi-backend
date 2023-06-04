@@ -237,7 +237,7 @@
     "id": 27,
     "name": "Wheat Smut",
     "weekday": 1,
-    "startTime": 13,
+    "startTime": "14",
     "duration": 2,
     "periodic": true,
     "location": 34
@@ -943,5 +943,14 @@
     "duration": 1,
     "periodic": false,
     "location": "1"
+  },
+  {
+    "id": 1005,
+    "name": "Data Structure",
+    "weekday": 1,
+    "startTime": 8,
+    "duration": 1,
+    "periodic": false,
+    "location": 0
   }
 ]

@@ -1,9 +1,11 @@
 ###
 GET http://localhost:8964/_api/user/8/course/all
+
 ###
 
 ###
 DELETE http://localhost:8964/_api/user/8/course/:id
+
 ###
 
 ###
@@ -12,14 +14,15 @@ Host: localhost:8964
 Content-Type: application/json
 
 [
-    {
-        "id": "string",
-        "name": "string",
-        "description": "string",
-        "start_date": "string",
-        "end_date": "string"
-    }
+  {
+    "id": "string",
+    "name": "string",
+    "description": "string",
+    "start_date": "string",
+    "end_date": "string"
+  }
 ]
+
 ###
 
 ###
@@ -30,6 +33,7 @@ Content-Type: application/json
 {
     "id": "string"
 }
+
 ###
 PUT /_api/user/1/course
 Host: localhost:8964
@@ -52,13 +56,23 @@ Content-Type: application/json
 
 ###
 
-POST /_api/user/1/course
+POST /_api/user/89/event
 Host: localhost:8964
 Content-Type: application/json
 
 {
-  "id": "8964"
+  "name": "Mrs",
+  "start": "5/27/2023",
+  "duration": 9,
+  "reType": 2,
+  "online": true,
+  "genre": 96,
+  "group": true,
+  "platform": "Chatterbridge",
+  "website": "moonfruit.com",
+  "isActivity": true
 }
+
 
 ###
 

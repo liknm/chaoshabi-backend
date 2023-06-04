@@ -1,6 +1,6 @@
 import pkg from 'pinyin-pro';
-import {pin} from "nodemon/lib/version.js";
-const { pinyin } = pkg;
+
+const {pinyin} = pkg;
 
 class Node {
     constructor() {
@@ -26,6 +26,8 @@ class list {
 }
 
 class hashTableByname {
+    first_name
+
     constructor() {
         this.arr = new Array(26);
     }
@@ -37,10 +39,10 @@ class hashTableByname {
     }
 
     getKey(node) {
-        let pinYin = pinyin(node.name, { style: 'TONE2' });
+        let pinYin = pinyin(node.name, {style: 'TONE2'});
         return pinYin.toLowerCase()[0].charCodeAt() - 97;
     }
-    first_name
+
     isExist(key, mainKey) {
         let current = this.arr[key].head;
         while (current) {
@@ -125,13 +127,13 @@ class hashTableById {
     }
 
     //key是ID模除13的值，mainkey是课程ID
-    isExist(hashKey,mainKey) {
+    isExist(hashKey, mainKey) {
         let key = hashKey;
-        if(key){
+        if (key) {
 
             let current = this.arr[key].head.next;
             while (current) {
-                if (current.id ==mainKey) {
+                if (current.id == mainKey) {
                     return current;
                 }
                 current = current.next;
@@ -152,20 +154,21 @@ class CourseTableById extends hashTableById {
 
     //管理员功能
     modifyTime(id, time) {
-        this.isExist(id%13,id).startTime = time;
+        this.isExist(id % 13, id).startTime = time;
     }
 
     modifyDuration(id, duration) {
-        this.isExist(id%13,id).duration = duration;
+        this.isExist(id % 13, id).duration = duration;
     }
 
     modifyLocation(id, location) {
-        this.isExist(id%13,id).location = location;
+        this.isExist(id % 13, id).location = location;
     }
 
     modifyWeekday(id, newWeekday) {
-        this.isExist(id%13,id).weekday = newWeekday;
+        this.isExist(id % 13, id).weekday = newWeekday;
     }
+
     insert(node) {
         if (!this.isExist(this.getKey(node), node.id)) {
             let tempNode;
@@ -186,16 +189,17 @@ class ExamTableById extends hashTableById {
 
     //管理员的功能
     modifyStartTime(id, Start) {
-        this.isExist(id%13,id).start = Start;
+        this.isExist(id % 13, id).start = Start;
     }
 
     modifyEndTime(id, End) {
-        this.isExist(id%13,id).end = End;
+        this.isExist(id % 13, id).end = End;
     }
 
     modifyLocation(id, location) {
-        this.isExist(id%13,id).location = location;
+        this.isExist(id % 13, id).location = location;
     }
+
     insert(node) {
         if (!this.isExist(this.getKey(node), node.id)) {
             let tempNode;
@@ -214,25 +218,26 @@ class ExamTableByname extends hashTableByname {
     }
 
     searchByname(name, id) {
-        const pinYin = pinyin(name, { style: 'TONE2' });
+        const pinYin = pinyin(name, {style: 'TONE2'});
         return this.isExist(pinYin.toLowerCase()[0].charCodeAt() - 97, id);
     }
 
     //管理员的功能
     modifyStartTime(name, id, Start) {
-        const pinYin = pinyin(name, { style: 'TONE2' });
+        const pinYin = pinyin(name, {style: 'TONE2'});
         this.isExist(pinYin.toLowerCase()[0].charCodeAt() - 97, id).start = Start;
     }
 
     modifyEndTime(name, id, End) {
-        const pinYin = pinyin(name, { style: 'TONE2' });
+        const pinYin = pinyin(name, {style: 'TONE2'});
         this.isExist(pinYin.toLowerCase()[0].charCodeAt() - 97, id).end = End;
     }
 
     modifyLocation(name, id, location) {
-        const pinYin = pinyin(name, { style: 'TONE2' });
+        const pinYin = pinyin(name, {style: 'TONE2'});
         this.isExist(pinYin.toLowerCase()[0].charCodeAt() - 97, id).location = location;
     }
+
     insert(node) {
         if (!this.isExist(this.getKey(node), node.id)) {
             //node.next = this.arr[this.getKey(node)].next;
@@ -253,30 +258,31 @@ class CourseTableByname extends hashTableByname {
     }
 
     searchByname(name, id) {
-        const pinYin = pinyin(name, { style: 'TONE2' });
+        const pinYin = pinyin(name, {style: 'TONE2'});
         return this.isExist(pinYin.toLowerCase()[0].charCodeAt() - 97, id);
     }
 
     //管理员功能
     modifyTime(name, id, time) {
-        const pinYin = pinyin(name, { style: 'TONE2' });
+        const pinYin = pinyin(name, {style: 'TONE2'});
         this.isExist(pinYin.toLowerCase()[0].charCodeAt() - 97, id).startTime = time;
     }
 
     modifyDuration(name, id, duration) {
-        const pinYin = pinyin(name, { style: 'TONE2' });
+        const pinYin = pinyin(name, {style: 'TONE2'});
         this.isExist(pinYin.toLowerCase()[0].charCodeAt() - 97, id).duration = duration;
     }
 
     modifyLocation(name, id, location) {
-        const pinYin = pinyin(name, { style: 'TONE2' });
+        const pinYin = pinyin(name, {style: 'TONE2'});
         this.isExist(pinYin.toLowerCase()[0].charCodeAt() - 97, id).location = location;
     }
 
     modifyWeekday(name, id, newWeekday) {
-        const pinYin = pinyin(name, { style: 'TONE2' });
+        const pinYin = pinyin(name, {style: 'TONE2'});
         this.isExist(pinYin.toLowerCase()[0].charCodeAt() - 97, id).weekday = newWeekday;
     }
+
     insert(node) {
         if (!this.isExist(this.getKey(node), node.id)) {
             //node.next = this.arr[this.getKey(node)].next;
@@ -301,7 +307,6 @@ class CourseTableBytime extends hashTableBytime {
     }
 
 
-
     //管理员功能（修改课程信息）
     modifyTime(weekday, id, time) {
         this.isExist(weekday - 1, id).startTime = time;
@@ -314,7 +319,7 @@ class CourseTableBytime extends hashTableBytime {
     //修改周期需要将其移动到指定的哈希链表中
     modifyWeekday(weekday, id, newWeekday) {
         let current = this.isExist(weekday - 1, id);
-        if(current.weekday !== newWeekday){
+        if (current.weekday !== newWeekday) {
             let previous = this.findPrevious(weekday - 1, id);
             previous.next = current.next;
             current.weekday = newWeekday;
@@ -357,5 +362,5 @@ class Exam {
     }
 }
 
-export { Node, list, Course, Exam, CourseTableByname, CourseTableBytime, CourseTableById, ExamTableByname, ExamTableById }
+export {Node, list, Course, Exam, CourseTableByname, CourseTableBytime, CourseTableById, ExamTableByname, ExamTableById}
 

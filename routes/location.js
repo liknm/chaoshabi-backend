@@ -29,9 +29,9 @@ export default async function event(fastify, opts) {
 
     async function getLocationList(req, reply) {
         try {
-            const locationList = await fs.readFile('./database/locationList.json','utf8')
+            const locationList = await fs.readFile('./database/locationList.json', 'utf8')
             reply.send(locationList);
-        } catch (e){
+        } catch (e) {
             console.log(e)
         }
     }

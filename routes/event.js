@@ -1,5 +1,5 @@
 import fs from "fs/promises";
-import {addClassEvent, addClassEventDirect, deleteGroupEvent, stuAddEvent} from "../database/main.mjs";
+import {addClassEvent, addClassEventDirect, stuAddEvent} from "../database/main.mjs";
 
 export const autoPrefix = '/_api'
 export default async function event(fastify, opts) {
@@ -123,16 +123,16 @@ async function addEventForAdmin(req, reply) {
         console.log(data)
         if (data.group) {
             if (data.failed) {
-                addClassEventDirect(data.genre,data.name, data.startTime, data.duration, data.reType, data.online, data.location, data.group, data.platform, data.website, data.classIndex)
+                addClassEventDirect(data.genre, data.name, data.startTime, data.duration, data.reType, data.online, data.location, data.group, data.platform, data.website, data.classIndex)
                 const alternative = null
                 reply.send(alternative)
             } else {
                 console.log('sussssss')
-                const alternative = addClassEvent(data.genre,data.name, data.startTime, data.duration, data.reType, data.online, data.location, data.group, data.platform, data.website, data.classIndex)
+                const alternative = addClassEvent(data.genre, data.name, data.startTime, data.duration, data.reType, data.online, data.location, data.group, data.platform, data.website, data.classIndex)
                 reply.send(alternative)
             }
         } else {
-            const alternative=stuAddEvent(data.genre,data.name, data.startTime, data.duration, data.reType, data.online, data.location, data.group, data.platform, data.website,data.username,data.isActivity)
+            const alternative = stuAddEvent(data.genre, data.name, data.startTime, data.duration, data.reType, data.online, data.location, data.group, data.platform, data.website, data.username, data.isActivity)
             reply.send(alternative)
         }
     } catch (e) {

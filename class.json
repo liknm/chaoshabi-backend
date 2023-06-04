@@ -77,10 +77,11 @@
   },
   {
     "classIndex": 1234,
-    "classMember": 2,
+    "classMember": 3,
     "classNumber": [
       "username",
-      "asdfasdfasdfvaswdfbvsadbasgfbew"
+      "asdfasdfasdfvaswdfbvsadbasgfbew",
+      "adalovelace"
     ],
     "event": []
   },
@@ -94,10 +95,29 @@
   },
   {
     "classIndex": 65,
-    "classMember": 1,
+    "classMember": 2,
     "classNumber": [
-      "adalovelace"
+      "adalovelace",
+      "root"
     ],
+    "event": []
+  },
+  {
+    "classIndex": null,
+    "classMember": 0,
+    "classNumber": [],
+    "event": []
+  },
+  {
+    "classIndex": null,
+    "classMember": 0,
+    "classNumber": [],
+    "event": []
+  },
+  {
+    "classIndex": null,
+    "classMember": 0,
+    "classNumber": [],
     "event": []
   },
   {

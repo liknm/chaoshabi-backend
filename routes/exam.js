@@ -1,6 +1,4 @@
-import fs from 'fs/promises'
 import {createExam, getAllExamForAdmin, getAllExamForStudent, modifyExamEverything} from "../database/main.mjs";
-import user from "./user.js";
 
 export const autoPrefix = '/_api'
 export default async function exam(fastify,) {
@@ -18,14 +16,14 @@ export default async function exam(fastify,) {
         handler: getAllExamsForStudent
     })
     fastify.route({
-        method:'PUT',
-        path:'/exam',
-        handler:modifyExam
+        method: 'PUT',
+        path: '/exam',
+        handler: modifyExam
     })
     fastify.route({
-        method:'POST',
-        path:'/exam',
-        handler:releaseExam
+        method: 'POST',
+        path: '/exam',
+        handler: releaseExam
     })
 }
 
@@ -46,19 +44,21 @@ async function getAllExamsForStudent(req, reply) {
     console.log(result)
     reply.send(result)
 }
-async function modifyExam(req,reply) {
-    const data=req.body
+
+async function modifyExam(req, reply) {
+    const data = req.body
     console.log(data)
-    modifyExamEverything(data.startTime,data.endTime,data.location,data.id,data.name)
+    modifyExamEverything(data.startTime, data.endTime, data.location, data.id, data.name)
     reply.status(200).send()
 }
-async function releaseExam(req,reply) {
-    const data=req.body
+
+async function releaseExam(req, reply) {
+    const data = req.body
     console.log(data)
-    const flag=createExam(data.name,data.startTime,data.endTime,data.location)
-    if (flag===true) {
-        reply.status(200).send({message:'考试发布成功'})
-    } else  {
-        reply.status(400).send({message:'exam has existed'})
+    const flag = createExam(data.name, data.startTime, data.endTime, data.location)
+    if (flag === true) {
+        reply.status(200).send({message: '考试发布成功'})
+    } else {
+        reply.status(400).send({message: 'exam has existed'})
     }
 }

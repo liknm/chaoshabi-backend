@@ -490,6 +490,21 @@
         "genre": 0,
         "next": null,
         "isActivity": true
+      },
+      {
+        "id": 1151,
+        "name": "踢球",
+        "start": "2023-06-03T10:00:00.000Z",
+        "duration": 1,
+        "reType": 0,
+        "online": false,
+        "location": 1,
+        "group": false,
+        "platform": "",
+        "website": "",
+        "genre": 13,
+        "next": null,
+        "isActivity": true
       }
     ],
     "courseList": [
@@ -782,6 +797,66 @@
     "username": "adalovelace",
     "password": "letmein",
     "name": "gfjh",
+    "classNumber": 65,
+    "examList": [],
+    "group_eventList": {
+      "head": {
+        "data": 0,
+        "next": null
+      },
+      "tail": {
+        "data": 0,
+        "next": null
+      },
+      "length": 0
+    },
+    "eventList": [],
+    "courseList": []
+  },
+  {
+    "username": "adalovelace",
+    "password": "letmein",
+    "name": "sz",
+    "classNumber": 1234,
+    "examList": [],
+    "group_eventList": {
+      "head": {
+        "data": 0,
+        "next": null
+      },
+      "tail": {
+        "data": 0,
+        "next": null
+      },
+      "length": 0
+    },
+    "eventList": [],
+    "courseList": []
+  },
+  {
+    "username": "adalovelace",
+    "password": "letmein",
+    "name": "sz",
+    "classNumber": 1234,
+    "examList": [],
+    "group_eventList": {
+      "head": {
+        "data": 0,
+        "next": null
+      },
+      "tail": {
+        "data": 0,
+        "next": null
+      },
+      "length": 0
+    },
+    "eventList": [],
+    "courseList": []
+  },
+  {
+    "username": "root",
+    "password": "salainen",
+    "name": " asdf",
     "classNumber": 65,
     "examList": [],
     "group_eventList": {

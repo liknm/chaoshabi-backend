@@ -1,5 +1,4 @@
 import {getAllEventForPerson, stuAddEvent} from "../database/main.mjs";
-import user from "./user.js";
 
 export const autoPrefix = '/_api'
 export default async function event(fastify, opts) {
@@ -53,11 +52,11 @@ export default async function event(fastify, opts) {
                 items: {
                     type: 'object',
                     properties: {
-                        eventId: { type: 'string' },
-                        eventName: { type: 'string' },
-                        eventDescription: { type: 'string' },
-                        eventStartTime: { type: 'string' },
-                        eventEndTime: { type: 'string' },
+                        eventId: {type: 'string'},
+                        eventName: {type: 'string'},
+                        eventDescription: {type: 'string'},
+                        eventStartTime: {type: 'string'},
+                        eventEndTime: {type: 'string'},
                     },
                 },
             },
@@ -91,9 +90,9 @@ export default async function event(fastify, opts) {
     })
 
     async function getAllEventsForUser(req, reply) {
-        const data=req.body
-        const userId=req.params.userId
-        const result=getAllEventForPerson(userId)
+        const data = req.body
+        const userId = req.params.userId
+        const result = getAllEventForPerson(userId)
         reply.send(result)
     }
 
@@ -101,14 +100,14 @@ export default async function event(fastify, opts) {
         const userId = req.params.userId;
         const eventId = req.params.eventId;
         //await db.deleteEventForUser(userId, eventId);
-        reply.send({ message: 'Event deleted successfully' });
+        reply.send({message: 'Event deleted successfully'});
     }
 
     async function reviseEventsForUser(req, reply) {
         const userId = req.params.userId;
         const events = req.body;
         //await db.reviseEventsForUser(userId, events);
-        reply.send({ message: 'Events revised successfully' });
+        reply.send({message: 'Events revised successfully'});
     }
 
     async function addEventForUser(req, reply) {
@@ -116,10 +115,10 @@ export default async function event(fastify, opts) {
         const event = req.body;
         console.log("eveeeeeeeeeeent：")
         console.log(event);
-        const available=stuAddEvent(event.name,event.startTime,event.duration,event.reType,event.online,event.location,event.group,event.platform,event.website,userId)
-        if (available===null) {
+        const available = stuAddEvent(event.name, event.startTime, event.duration, event.reType, event.online, event.location, event.group, event.platform, event.website, userId)
+        if (available === null) {
             console.log('success')
-            reply.send({message:'success'})
+            reply.send({message: 'success'})
         } else {
             console.log('conflict')
             console.log(available)
